@@ -1,5 +1,5 @@
 <?php
-// Pour lancer, dans le terminal: php -S localhost:8000
+// Pour lancer, ecrire dans le terminal: php -S localhost:8000
 // Puis aller sur http://localhost:8000/calculatrice.php
 $resultat = "";
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
