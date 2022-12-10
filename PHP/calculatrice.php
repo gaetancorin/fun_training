@@ -26,3 +26,60 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 }
 ?>
 
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Mini Calculatrice PHP</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        form {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #ccc;
+            text-align: center;
+        }
+        input, select, button {
+            margin: 5px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        .resultat {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<form method="POST">
+    <h2>🧮 Mini Calculatrice</h2>
+
+    <input type="number" step="any" name="a" required placeholder="Nombre 1">
+    <select name="op">
+        <option value="+">+</option>
+        <option value="-">−</option>
+        <option value="*">×</option>
+        <option value="/">÷</option>
+    </select>
+    <input type="number" step="any" name="b" required placeholder="Nombre 2">
+    <br>
+    <button type="submit">Calculer</button>
+
+    <?php if ($resultat !== ""): ?>
+        <div class="resultat">
+            ✅ Résultat : <strong><?= htmlspecialchars($resultat) ?></strong>
+        </div>
+    <?php endif; ?>
+</form>
+
+</body>
+</html>
