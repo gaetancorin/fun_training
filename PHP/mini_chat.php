@@ -31,3 +31,69 @@ if (isset($_GET['supprimer'])) {
     }
 }
 ?>
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Mini Chat PHP</title>
+<style>
+body {
+    font-family: Arial;
+    background: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    padding-top: 50px;
+}
+.chat {
+    background: white;
+    padding: 20px 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px #ccc;
+    width: 500px;
+}
+input, textarea, button {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    font-size: 16px;
+}
+.message {
+    border-bottom: 1px solid #ddd;
+    padding: 10px 0;
+}
+.message span {
+    display: block;
+    font-size: 14px;
+    color: gray;
+}
+a {
+    color: red;
+    text-decoration: none;
+}
+</style>
+</head>
+<body>
+<div class="chat">
+    <h2>💬 Mini Chat</h2>
+    <form method="POST">
+        <input type="text" name="pseudo" placeholder="Votre pseudo" required>
+        <textarea name="message" placeholder="Votre message" rows="3" required></textarea>
+        <button type="submit">Envoyer</button>
+    </form>
+
+    <h3>Messages :</h3>
+    <?php if (empty($messages)): ?>
+        <p>Aucun message pour l'instant.</p>
+    <?php else: ?>
+        <?php foreach ($messages as $index => $msg): ?>
+            <div class="message">
+                <strong><?= $msg['pseudo'] ?></strong>
+                <span><?= $msg['date'] ?></span>
+                <p><?= $msg['message'] ?></p>
+            </div>
+        <?php endforeach; ?>
+    <?php endif; ?>
+</div>
+</body>
+</html>
