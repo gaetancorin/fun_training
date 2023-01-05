@@ -3,6 +3,7 @@
 .env/
 
 PHP/taches.json
+PHP/messages_chat.json
 
 help.txt
 no_duplicate.txt
