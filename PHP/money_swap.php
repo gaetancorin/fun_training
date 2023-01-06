@@ -12,11 +12,21 @@ $devises = [
 ];
 
 $resultat = '';
+$montant = '';
+$from = '';
+$to = '';
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $montant = (float) $_POST['montant'];
     $from = $_POST['from'];
     $to = $_POST['to'];
+
+    // Swap rapide
+    if (isset($_POST['swap'])) {
+        $temp = $from;
+        $from = $to;
+        $to = $temp;
+    }
 
     if (isset($devises[$from]) && isset($devises[$to])) {
         $resultat = $montant * ($devises[$to] / $devises[$from]);
@@ -33,67 +43,34 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <meta charset="UTF-8">
 <title>💱 MoneySwap - Convertisseur de devises</title>
 <style>
-body {
-    font-family: Arial, sans-serif;
-    background: #e0f7fa;
-    display: flex;
-    justify-content: center;
-    padding-top: 50px;
-}
-.money-swap {
-    background: white;
-    padding: 25px 35px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    width: 400px;
-}
-h2 {
-    text-align: center;
-    margin-bottom: 20px;
-}
-input, select, button {
-    width: 100%;
-    padding: 12px;
-    margin: 6px 0;
-    font-size: 16px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-}
-button {
-    background: #00796b;
-    color: white;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-}
-button:hover {
-    background: #004d40;
-}
-.resultat {
-    margin-top: 20px;
-    font-weight: bold;
-    font-size: 18px;
-    text-align: center;
-}
+body { font-family: Arial, sans-serif; background: #e0f7fa; display: flex; justify-content: center; padding-top: 50px; }
+.money-swap { background: white; padding: 25px 35px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 400px; }
+h2 { text-align: center; margin-bottom: 20px; }
+input, select, button { width: 100%; padding: 12px; margin: 6px 0; font-size: 16px; border-radius: 6px; border: 1px solid #ccc; }
+button { background: #00796b; color: white; border: none; cursor: pointer; font-weight: bold; }
+button:hover { background: #004d40; }
+.swap-btn { background: #004d40; margin-top: 5px; }
+.resultat { margin-top: 20px; font-weight: bold; font-size: 18px; text-align: center; }
 </style>
 </head>
 <body>
 <div class="money-swap">
     <h2>💱 MoneySwap</h2>
     <form method="POST">
-        <input type="number" step="any" name="montant" placeholder="Montant" required>
-        <select name="from" required>
-            <?php foreach ($devises as $dev => $rate) echo "<option value='$dev'>$dev</option>"; ?>
+        <input type="number" step="any" name="montant" placeholder="Montant" value="<?= htmlspecialchars($montant) ?>" required>
+        <select name="from">
+            <?php foreach ($devises as $dev => $rate) echo "<option value='$dev'" . ($from==$dev?' selected':'') . ">$dev</option>"; ?>
         </select>
-        <select name="to" required>
-            <?php foreach ($devises as $dev => $rate) echo "<option value='$dev'>$dev</option>"; ?>
+        <select name="to">
+            <?php foreach ($devises as $dev => $rate) echo "<option value='$dev'" . ($to==$dev?' selected':'') . ">$dev</option>"; ?>
         </select>
         <button type="submit">Convertir</button>
+        <button type="submit" name="swap" class="swap-btn">↔ Inverser</button>
     </form>
 
     <?php if ($resultat !== ''): ?>
         <div class="resultat">
-            <?= htmlspecialchars($montant) ?> <?= $_POST['from'] ?> = <?= $resultat ?> <?= $_POST['to'] ?>
+            <?= htmlspecialchars($montant) ?> <?= $from ?> = <?= $resultat ?> <?= $to ?>
         </div>
     <?php endif; ?>
 </div>
