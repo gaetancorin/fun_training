@@ -30,6 +30,13 @@ if (isset($_GET['supprimer'])) {
         file_put_contents($file, json_encode($messages));
     }
 }
+
+// Fonction pour générer une couleur à partir du pseudo
+function pseudoColor($pseudo) {
+    $hash = md5($pseudo);
+    // prendre les 6 premiers caractères pour faire une couleur hex
+    return '#' . substr($hash, 0, 6);
+}
 ?>
 
 <!DOCTYPE html>
@@ -88,7 +95,7 @@ a {
     <?php else: ?>
         <?php foreach ($messages as $index => $msg): ?>
             <div class="message">
-                <strong><?= $msg['pseudo'] ?></strong>
+                <strong style="color: <?= pseudoColor($msg['pseudo']) ?>"><?= $msg['pseudo'] ?></strong>
                 <span><?= $msg['date'] ?></span>
                 <p><?= $msg['message'] ?></p>
             </div>
