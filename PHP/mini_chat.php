@@ -17,7 +17,8 @@ if (isset($_POST['pseudo'], $_POST['message']) && $_POST['message'] !== '') {
     $messages[] = [
         'pseudo' => htmlspecialchars($_POST['pseudo']),
         'message' => htmlspecialchars($_POST['message']),
-        'date' => date('H:i:s')
+        'date' => date('H:i:s'),
+        'likes' => 0 // nouveau champ pour les likes
     ];
     file_put_contents($file, json_encode($messages));
 }
@@ -31,10 +32,18 @@ if (isset($_GET['supprimer'])) {
     }
 }
 
+// Ajouter un like
+if (isset($_GET['like'])) {
+    $index = (int)$_GET['like'];
+    if (isset($messages[$index])) {
+        $messages[$index]['likes']++;
+        file_put_contents($file, json_encode($messages));
+    }
+}
+
 // Fonction pour générer une couleur à partir du pseudo
 function pseudoColor($pseudo) {
     $hash = md5($pseudo);
-    // prendre les 6 premiers caractères pour faire une couleur hex
     return '#' . substr($hash, 0, 6);
 }
 ?>
@@ -68,15 +77,27 @@ input, textarea, button {
 .message {
     border-bottom: 1px solid #ddd;
     padding: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 .message span {
     display: block;
     font-size: 14px;
     color: gray;
 }
+.message div.likes {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
 a {
-    color: red;
     text-decoration: none;
+    color: #00796b;
+    font-weight: bold;
+}
+a:hover {
+    color: #004d40;
 }
 </style>
 </head>
@@ -95,9 +116,14 @@ a {
     <?php else: ?>
         <?php foreach ($messages as $index => $msg): ?>
             <div class="message">
-                <strong style="color: <?= pseudoColor($msg['pseudo']) ?>"><?= $msg['pseudo'] ?></strong>
-                <span><?= $msg['date'] ?></span>
-                <p><?= $msg['message'] ?></p>
+                <div>
+                    <strong style="color: <?= pseudoColor($msg['pseudo']) ?>"><?= $msg['pseudo'] ?></strong>
+                    <span><?= $msg['date'] ?></span>
+                    <p><?= $msg['message'] ?></p>
+                </div>
+                <div class="likes">
+                    <a href="?like=<?= $index ?>">❤️</a> <?= $msg['likes'] ?>
+                </div>
             </div>
         <?php endforeach; ?>
     <?php endif; ?>
