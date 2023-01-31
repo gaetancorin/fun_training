@@ -10,6 +10,14 @@ $file = 'messages_chat.json';
 $messages = [];
 if (file_exists($file)) {
     $messages = json_decode(file_get_contents($file), true);
+
+    // Initialiser les réactions pour les anciens messages
+    foreach ($messages as &$msg) {
+        if (!isset($msg['reactions'])) {
+            $msg['reactions'] = ['❤️'=>0, '👍'=>0, '😆'=>0, '😮'=>0];
+        }
+    }
+    unset($msg);
 }
 
 // Ajouter un nouveau message
@@ -18,7 +26,7 @@ if (isset($_POST['pseudo'], $_POST['message']) && $_POST['message'] !== '') {
         'pseudo' => htmlspecialchars($_POST['pseudo']),
         'message' => htmlspecialchars($_POST['message']),
         'date' => date('H:i:s'),
-        'likes' => 0 // nouveau champ pour les likes
+        'reactions' => ['❤️'=>0, '👍'=>0, '😆'=>0, '😮'=>0]
     ];
     file_put_contents($file, json_encode($messages));
 }
@@ -32,11 +40,12 @@ if (isset($_GET['supprimer'])) {
     }
 }
 
-// Ajouter un like
-if (isset($_GET['like'])) {
-    $index = (int)$_GET['like'];
-    if (isset($messages[$index])) {
-        $messages[$index]['likes']++;
+// Ajouter une réaction
+if (isset($_GET['react'], $_GET['index'])) {
+    $index = (int)$_GET['index'];
+    $emoji = $_GET['react'];
+    if (isset($messages[$index]['reactions'][$emoji])) {
+        $messages[$index]['reactions'][$emoji]++;
         file_put_contents($file, json_encode($messages));
     }
 }
@@ -77,27 +86,19 @@ input, textarea, button {
 .message {
     border-bottom: 1px solid #ddd;
     padding: 10px 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
 }
 .message span {
     display: block;
     font-size: 14px;
     color: gray;
 }
-.message div.likes {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-a {
+.reactions a {
+    margin-right: 8px;
     text-decoration: none;
-    color: #00796b;
-    font-weight: bold;
+    font-size: 16px;
 }
-a:hover {
-    color: #004d40;
+.reactions a:hover {
+    transform: scale(1.2);
 }
 </style>
 </head>
@@ -116,13 +117,13 @@ a:hover {
     <?php else: ?>
         <?php foreach ($messages as $index => $msg): ?>
             <div class="message">
-                <div>
-                    <strong style="color: <?= pseudoColor($msg['pseudo']) ?>"><?= $msg['pseudo'] ?></strong>
-                    <span><?= $msg['date'] ?></span>
-                    <p><?= $msg['message'] ?></p>
-                </div>
-                <div class="likes">
-                    <a href="?like=<?= $index ?>">❤️</a> <?= $msg['likes'] ?>
+                <strong style="color: <?= pseudoColor($msg['pseudo']) ?>"><?= $msg['pseudo'] ?></strong>
+                <span><?= $msg['date'] ?></span>
+                <p><?= $msg['message'] ?></p>
+                <div class="reactions">
+                    <?php foreach ($msg['reactions'] as $emoji => $count): ?>
+                        <a href="?react=<?= $emoji ?>&index=<?= $index ?>"><?= $emoji ?> <?= $count ?></a>
+                    <?php endforeach; ?>
                 </div>
             </div>
         <?php endforeach; ?>
