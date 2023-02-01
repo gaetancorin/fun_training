@@ -24,6 +24,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         case '%':
             $resultat = $a * $b / 100;
             break;
+        case '√':
+            // Racine carrée de a (b est ignoré)
+            $resultat = $a >= 0 ? sqrt($a) : "Erreur : nombre négatif";
+            break;
         default:
             $resultat = "Opération invalide";
     }
@@ -74,8 +78,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <option value="*">×</option>
         <option value="/">÷</option>
         <option value="%">%</option>
+        <option value="√">√</option>
     </select>
-    <input type="number" step="any" name="b" required placeholder="Nombre 2">
+    <input type="number" step="any" name="b" placeholder="Nombre 2 (ignoré pour √)">
     <br>
     <button type="submit">Calculer</button>
 
