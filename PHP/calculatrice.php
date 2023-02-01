@@ -20,6 +20,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         case '/':
             $resultat = $b != 0 ? $a / $b : "Erreur : division par 0";
             break;
+        case '%':
+            $resultat = $a * $b / 100;
+            break;
         default:
             $resultat = "Opération invalide";
     }
@@ -69,6 +72,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <option value="-">−</option>
         <option value="*">×</option>
         <option value="/">÷</option>
+        <option value="%">%</option>
     </select>
     <input type="number" step="any" name="b" required placeholder="Nombre 2">
     <br>
