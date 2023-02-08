@@ -81,7 +81,7 @@ button { padding: 10px 20px; margin-top: 10px; font-size: 16px; }
     <?php else: ?>
         <h3>🎉 Quiz terminé !</h3>
         <p>Votre score : <?= $score ?> / <?= count($questions) ?></p>
-        <a href="mini_quiz.php"><button>Recommencer</button></a>
+        <a href="quizz.php"><button>Recommencer</button></a>
     <?php endif; ?>
 </div>
 </body>
