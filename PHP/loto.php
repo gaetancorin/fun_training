@@ -50,3 +50,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     file_put_contents($file, json_encode($historique));
 }
 ?>
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Loto PHP</title>
+<style>
+body { font-family: Arial; background: #f0f0f0; display: flex; justify-content: center; padding-top: 30px; }
+.container { background: white; padding: 20px 30px; border-radius: 10px; box-shadow: 0 0 10px #ccc; width: 500px; text-align: center; }
+input { width: 50px; padding: 5px; margin: 5px; text-align: center; font-size: 16px; }
+button { padding: 10px 20px; margin-top: 10px; font-size: 16px; cursor: pointer; }
+.result { margin-top: 15px; font-weight: bold; }
+.history { margin-top: 20px; text-align: left; max-height: 200px; overflow-y: auto; background: #f9f9f9; padding: 10px; border-radius: 5px; }
+</style>
+</head>
+<body>
+<div class="container">
+    <h2>🎲 Loto</h2>
+
+    <form method="POST">
+        <p>Choisissez 6 numéros entre 1 et 49 :</p>
+        <?php for ($i = 0; $i < 6; $i++): ?>
+            <input type="number" name="numbers[]" min="1" max="49" required value="<?= $userNumbers[$i] ?? '' ?>">
+        <?php endfor; ?>
+        <br>
+        <button type="submit">Tirer les numéros</button>
+    </form>
+
+    <?php if ($resultat !== ''): ?>
+        <div class="result"><?= $resultat ?></div>
+    <?php endif; ?>
+
+    <div class="history">
+        <h3>📜 Historique des tirages</h3>
+        <?php if (!empty($historique)): ?>
+            <?php foreach (array_reverse($historique) as $entry): ?>
+                <p>
+                    <strong><?= $entry['date'] ?></strong> - Vos numéros : <?= implode(', ', $entry['user']) ?> | Tirage : <?= implode(', ', $entry['tirage']) ?> | Corrects : <?= $entry['correct'] ?>
+                </p>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <p>Aucun tirage pour l'instant.</p>
+        <?php endif; ?>
+    </div>
+</div>
+</body>
+</html>
