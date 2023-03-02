@@ -26,3 +26,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = generatePassword($length, $uppercase, $numbers, $symbols);
 }
 ?>
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Password Generator</title>
+<style>
+body { font-family: Arial; background: #f0f0f0; display: flex; justify-content: center; padding-top: 50px; }
+.container { background: white; padding: 20px 30px; border-radius: 10px; box-shadow: 0 0 10px #ccc; width: 400px; text-align: center; }
+input[type=number] { width: 60px; }
+button { padding: 10px 20px; margin-top: 10px; font-size: 16px; cursor: pointer; }
+.password { margin-top: 15px; font-weight: bold; word-break: break-all; }
+</style>
+</head>
+<body>
+<div class="container">
+    <h2>🔑 Password Generator</h2>
+
+    <form method="POST">
+        <label>Length: <input type="number" name="length" value="12" min="4" max="20"></label><br>
+        <label><input type="checkbox" name="uppercase" checked> Uppercase</label><br>
+        <label><input type="checkbox" name="numbers" checked> Numbers</label><br>
+        <label><input type="checkbox" name="symbols" checked> Symbols</label><br>
+        <button type="submit">Generate</button>
+    </form>
+
+    <?php if ($password !== ''): ?>
+        <div class="password">💻 <?= htmlspecialchars($password) ?></div>
+    <?php endif; ?>
+</div>
+</body>
+</html>
