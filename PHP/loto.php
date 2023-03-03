@@ -4,17 +4,40 @@
 // Puis aller sur:
 // http://localhost:8000/loto.php
 
+session_start();
+
 $tirage = [];
 $resultat = '';
 $userNumbers = [];
 $file = 'tirages.json';
 
+// Historique
 $historique = [];
 if (file_exists($file)) {
     $historique = json_decode(file_get_contents($file), true);
 }
 
+// Initialiser l'argent si pas déjà fait
+if (!isset($_SESSION['argent'])) {
+    $_SESSION['argent'] = 100;
+}
+
+// Gains selon nombre de bons numéros
+$gains = [
+    0 => 0,
+    1 => 1,
+    2 => 3,
+    3 => 5,
+    4 => 20,
+    5 => 100,
+    6 => 1000
+];
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Débit 1€ pour le ticket
+    $_SESSION['argent'] -= 1;
+
+    // Tirage aléatoire 6 numéros uniques
     $tirage = [];
     while (count($tirage) < 6) {
         $num = random_int(1, 49);
@@ -23,23 +46,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    // Numéros choisis
     $userNumbers = array_map('intval', $_POST['numbers']);
     $userNumbers = array_unique($userNumbers);
 
+    // Vérification
     $correct = array_intersect($tirage, $userNumbers);
     $countCorrect = count($correct);
 
+    // Calcul du gain
+    $gain = $gains[$countCorrect] ?? 0;
+    $_SESSION['argent'] += $gain;
+
     if ($countCorrect === 6) {
-        $resultat = "🎉 Jackpot ! Tous les numéros sont corrects : " . implode(', ', $tirage);
+        $resultat = "🎉 Jackpot ! Tous les numéros sont corrects : " . implode(', ', $tirage) . " → Vous gagnez $gain €";
     } else {
         $resultat = "Vous avez trouvé $countCorrect numéro(s) : " . implode(', ', $correct);
         $resultat .= "<br>Numéros tirés : " . implode(', ', $tirage);
+        if ($gain > 0) $resultat .= "<br>Vous gagnez $gain € !";
     }
 
+    // Ajouter au fichier historique
     $historique[] = [
         'user' => $userNumbers,
         'tirage' => $tirage,
         'correct' => $countCorrect,
+        'gain' => $gain,
+        'argent' => $_SESSION['argent'],
         'date' => date('Y-m-d H:i:s')
     ];
     file_put_contents($file, json_encode($historique));
@@ -58,14 +91,17 @@ input { width: 50px; padding: 5px; margin: 5px; text-align: center; font-size: 1
 button { padding: 10px 20px; margin-top: 10px; font-size: 16px; cursor: pointer; }
 .result { margin-top: 15px; font-weight: bold; }
 .history { margin-top: 20px; text-align: left; max-height: 200px; overflow-y: auto; background: #f9f9f9; padding: 10px; border-radius: 5px; }
+.argent { font-weight: bold; margin-bottom: 15px; }
 </style>
 </head>
 <body>
 <div class="container">
     <h2>🎲 Loto</h2>
 
+    <div class="argent">💰 Argent : <?= $_SESSION['argent'] ?> €</div>
+
     <form method="POST">
-        <p>Choisissez 6 numéros entre 1 et 49 :</p>
+        <p>Choisissez 6 numéros entre 1 et 49 (ticket : 1€) :</p>
         <?php for ($i = 0; $i < 6; $i++): ?>
             <input type="number" name="numbers[]" min="1" max="49" required value="<?= $userNumbers[$i] ?? '' ?>">
         <?php endfor; ?>
@@ -82,7 +118,7 @@ button { padding: 10px 20px; margin-top: 10px; font-size: 16px; cursor: pointer;
         <?php if (!empty($historique)): ?>
             <?php foreach (array_reverse($historique) as $entry): ?>
                 <p>
-                    <strong><?= $entry['date'] ?></strong> - Vos numéros : <?= implode(', ', $entry['user']) ?> | Tirage : <?= implode(', ', $entry['tirage']) ?> | Corrects : <?= $entry['correct'] ?>
+                    <strong><?= $entry['date'] ?></strong> - Vos numéros : <?= implode(', ', $entry['user']) ?> | Tirage : <?= implode(', ', $entry['tirage']) ?> | Corrects : <?= $entry['correct'] ?> | Gain : <?= $entry['gain'] ?> € | Argent : <?= $entry['argent'] ?> €
                 </p>
             <?php endforeach; ?>
         <?php else: ?>
