@@ -33,49 +33,49 @@ $gains = [
     6 => 1000
 ];
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Débit 1€ pour le ticket
-    $_SESSION['argent'] -= 1;
-
-    // Tirage aléatoire 6 numéros uniques
+// Fonction pour jouer un tirage
+function playLoto(&$argent, &$historique, $userNumbers, $gains, $file) {
     $tirage = [];
     while (count($tirage) < 6) {
         $num = random_int(1, 49);
-        if (!in_array($num, $tirage)) {
-            $tirage[] = $num;
-        }
+        if (!in_array($num, $tirage)) $tirage[] = $num;
     }
 
-    // Numéros choisis
-    $userNumbers = array_map('intval', $_POST['numbers']);
+    $userNumbers = array_map('intval', $userNumbers);
     $userNumbers = array_unique($userNumbers);
 
-    // Vérification
     $correct = array_intersect($tirage, $userNumbers);
     $countCorrect = count($correct);
 
-    // Calcul du gain
     $gain = $gains[$countCorrect] ?? 0;
-    $_SESSION['argent'] += $gain;
+    $argent -= 1; // coût du ticket
+    $argent += $gain;
 
-    if ($countCorrect === 6) {
-        $resultat = "🎉 Jackpot ! Tous les numéros sont corrects : " . implode(', ', $tirage) . " → Vous gagnez $gain €";
-    } else {
-        $resultat = "Vous avez trouvé $countCorrect numéro(s) : " . implode(', ', $correct);
-        $resultat .= "<br>Numéros tirés : " . implode(', ', $tirage);
-        if ($gain > 0) $resultat .= "<br>Vous gagnez $gain € !";
-    }
-
-    // Ajouter au fichier historique
     $historique[] = [
         'user' => $userNumbers,
         'tirage' => $tirage,
         'correct' => $countCorrect,
         'gain' => $gain,
-        'argent' => $_SESSION['argent'],
+        'argent' => $argent,
         'date' => date('Y-m-d H:i:s')
     ];
+
     file_put_contents($file, json_encode($historique));
+
+    return "Tirage : " . implode(', ', $tirage) . " | Corrects : $countCorrect | Gain : $gain € | Argent : $argent €";
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $userNumbers = $_POST['numbers'] ?? [1,2,3,4,5,6];
+
+    // Si autoplay
+    if (isset($_POST['autoplay'])) {
+        // On va utiliser un refresh automatique via JS
+        $_SESSION['autoplay'] = true;
+    } else {
+        $_SESSION['autoplay'] = false;
+        $resultat = playLoto($_SESSION['argent'], $historique, $userNumbers, $gains, $file);
+    }
 }
 ?>
 
@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Loto PHP</title>
+<title>Loto PHP Autoplay</title>
 <style>
 body { font-family: Arial; background: #f0f0f0; display: flex; justify-content: center; padding-top: 30px; }
 .container { background: white; padding: 20px 30px; border-radius: 10px; box-shadow: 0 0 10px #ccc; width: 500px; text-align: center; }
@@ -93,20 +93,24 @@ button { padding: 10px 20px; margin-top: 10px; font-size: 16px; cursor: pointer;
 .history { margin-top: 20px; text-align: left; max-height: 200px; overflow-y: auto; background: #f9f9f9; padding: 10px; border-radius: 5px; }
 .argent { font-weight: bold; margin-bottom: 15px; }
 </style>
+<?php if ($_SESSION['autoplay'] && $_SESSION['argent'] > 0): ?>
+<meta http-equiv="refresh" content="1">
+<?php endif; ?>
 </head>
 <body>
 <div class="container">
-    <h2>🎲 Loto</h2>
+    <h2>🎲 Loto Autoplay</h2>
 
     <div class="argent">💰 Argent : <?= $_SESSION['argent'] ?> €</div>
 
     <form method="POST">
-        <p>Choisissez 6 numéros entre 1 et 49 (ticket : 1€) :</p>
+        <p>Choisissez 6 numéros entre 1 et 49 :</p>
         <?php for ($i = 0; $i < 6; $i++): ?>
-            <input type="number" name="numbers[]" min="1" max="49" required value="<?= $userNumbers[$i] ?? '' ?>">
+            <input type="number" name="numbers[]" min="1" max="49" required value="<?= $userNumbers[$i] ?? ($i+1) ?>">
         <?php endfor; ?>
         <br>
-        <button type="submit">Tirer les numéros</button>
+        <button type="submit" name="play">Tirer les numéros</button>
+        <button type="submit" name="autoplay">▶ Autoplay</button>
     </form>
 
     <?php if ($resultat !== ''): ?>
@@ -125,6 +129,11 @@ button { padding: 10px 20px; margin-top: 10px; font-size: 16px; cursor: pointer;
             <p>Aucun tirage pour l'instant.</p>
         <?php endif; ?>
     </div>
+
+    <?php if ($_SESSION['autoplay'] && $_SESSION['argent'] <= 0): ?>
+        <div class="result" style="color:red; margin-top:15px;">💸 Plus d'argent ! Autoplay arrêté.</div>
+        <?php $_SESSION['autoplay'] = false; ?>
+    <?php endif; ?>
 </div>
 </body>
 </html>
