@@ -49,16 +49,25 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
     $userNumbers = $_POST['numbers'] ?? $_SESSION['lastNumbers'];
     $_SESSION['lastNumbers'] = $userNumbers;
 
+    // Autoplay normal
     if (isset($_POST['autoplay'])) $_SESSION['autoplay'] = true;
-    if (isset($_POST['play'])) $_SESSION['autoplay'] = false;
+
+    // Autoplay fast
+    if (isset($_POST['autoplay_fast'])) {
+        $_SESSION['autoplay'] = false; // désactiver le refresh normal
+        while ($_SESSION['argent'] > 0) {
+            $resultat = playLoto($_SESSION['argent'],$historique,$_SESSION['lastNumbers'],$gains,$file);
+        }
+    }
 
     // Tirage manuel
     if (isset($_POST['play'])) {
+        $_SESSION['autoplay'] = false;
         $resultat = playLoto($_SESSION['argent'],$historique,$userNumbers,$gains,$file);
     }
 }
 
-// Autoplay effectif même sans POST
+// Autoplay effectif avec refresh toutes les secondes
 if (!empty($_SESSION['autoplay']) && $_SESSION['argent']>0) {
     $resultat = playLoto($_SESSION['argent'],$historique,$_SESSION['lastNumbers'],$gains,$file);
 }
@@ -95,6 +104,7 @@ button{padding:10px 20px;margin-top:10px;font-size:16px;cursor:pointer;}
 <?php endfor; ?><br>
 <button type="submit" name="play">Tirer les numéros</button>
 <button type="submit" name="autoplay">▶ Autoplay</button>
+<button type="submit" name="autoplay_fast">⚡ Autoplay Fast</button>
 </form>
 
 <?php if(!empty($resultat)): ?>
@@ -110,7 +120,7 @@ button{padding:10px 20px;margin-top:10px;font-size:16px;cursor:pointer;}
 <?php else: ?><p>Aucun tirage pour l'instant.</p><?php endif; ?>
 </div>
 
-<?php if(!empty($_SESSION['autoplay']) && $_SESSION['argent']<=0): ?>
+<?php if($_SESSION['argent']<=0): ?>
 <div class="result" style="color:red;margin-top:15px;">💸 Plus d'argent ! Autoplay arrêté.</div>
 <?php $_SESSION['autoplay']=false; endif; ?>
 </div>
