@@ -8,11 +8,13 @@ $file = 'tirages.json';
 $historique = file_exists($file) ? json_decode(file_get_contents($file), true) : [];
 $gains = [0=>0,1=>1,2=>3,3=>5,4=>20,5=>100,6=>1000];
 
-// Initialiser argent
-if (!isset($_SESSION['argent'])) $_SESSION['argent'] = 100;
-
-// Initialiser lastNumbers
-if (!isset($_SESSION['lastNumbers'])) $_SESSION['lastNumbers'] = [1,2,3,4,5,6];
+// Initialiser ou reset de la partie
+if (!isset($_SESSION['started']) || isset($_POST['reset'])) {
+    $_SESSION['argent'] = 100;
+    $_SESSION['lastNumbers'] = [1,2,3,4,5,6];
+    $_SESSION['autoplay'] = false;
+    $_SESSION['started'] = true;
+}
 
 // Fonction tirage
 function playLoto(&$argent, &$historique, $userNumbers, $gains, $file) {
@@ -49,21 +51,24 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
     $userNumbers = $_POST['numbers'] ?? $_SESSION['lastNumbers'];
     $_SESSION['lastNumbers'] = $userNumbers;
 
-    // Autoplay normal
-    if (isset($_POST['autoplay'])) $_SESSION['autoplay'] = true;
+    if (isset($_POST['play'])) {
+        $_SESSION['autoplay'] = false;
+        $resultat = playLoto($_SESSION['argent'],$historique,$userNumbers,$gains,$file);
+    }
 
-    // Autoplay fast
+    if (isset($_POST['autoplay'])) {
+        $_SESSION['autoplay'] = true;
+    }
+
     if (isset($_POST['autoplay_fast'])) {
-        $_SESSION['autoplay'] = false; // désactiver le refresh normal
-        while ($_SESSION['argent'] > 0) {
+        $_SESSION['autoplay'] = false; // désactiver refresh
+        while ($_SESSION['argent']>0) {
             $resultat = playLoto($_SESSION['argent'],$historique,$_SESSION['lastNumbers'],$gains,$file);
         }
     }
 
-    // Tirage manuel
-    if (isset($_POST['play'])) {
-        $_SESSION['autoplay'] = false;
-        $resultat = playLoto($_SESSION['argent'],$historique,$userNumbers,$gains,$file);
+    if (isset($_POST['reset'])) {
+        $resultat = "🔄 Nouvelle partie ! Vous repartez avec 100 €.";
     }
 }
 
@@ -105,6 +110,7 @@ button{padding:10px 20px;margin-top:10px;font-size:16px;cursor:pointer;}
 <button type="submit" name="play">Tirer les numéros</button>
 <button type="submit" name="autoplay">▶ Autoplay</button>
 <button type="submit" name="autoplay_fast">⚡ Autoplay Fast</button>
+<button type="submit" name="reset">🔄 Nouvelle partie</button>
 </form>
 
 <?php if(!empty($resultat)): ?>
