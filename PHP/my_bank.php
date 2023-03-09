@@ -7,14 +7,28 @@ session_start();
 // Initialiser le solde et l'historique si ce n'est pas déjà fait
 if (!isset($_SESSION['solde'])) $_SESSION['solde'] = 100;
 if (!isset($_SESSION['historique'])) $_SESSION['historique'] = [];
+if (!isset($_SESSION['emprunts'])) $_SESSION['emprunts'] = []; // tableau des emprunts en cours
+$taux_interet = 0.08; // 8% par jour
 
-// Gestion du POST pour dépôt, retrait ou emprunt
 $message = '';
+
+// Fonction pour calculer les intérêts
+function calculerInterets(&$emprunts, $taux) {
+    foreach ($emprunts as &$emprunt) {
+        $emprunt['jours'] += 1;
+        $emprunt['montant_du'] = round($emprunt['montant_initial'] * pow(1 + $taux, $emprunt['jours']), 2);
+    }
+}
+
+// Gestion du POST pour dépôt, retrait, emprunt et jour suivant
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $montant = (float) ($_POST['montant'] ?? 0);
     $action = $_POST['action'] ?? '';
 
-    if ($montant <= 0) {
+    if ($action === 'jour') {
+        calculerInterets($_SESSION['emprunts'], $taux_interet);
+        $message = "📆 Un jour a passé, intérêts appliqués sur tous les emprunts.";
+    } elseif ($montant <= 0 && $action !== 'jour') {
         $message = "⚠ Montant invalide.";
     } else {
         switch($action) {
@@ -42,6 +56,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
             case 'emprunt':
                 $_SESSION['solde'] += $montant;
+                $_SESSION['emprunts'][] = [
+                    'montant_initial' => $montant,
+                    'montant_du' => $montant,
+                    'jours' => 0,
+                    'date' => date('Y-m-d H:i:s')
+                ];
                 $_SESSION['historique'][] = [
                     'type' => 'Emprunt',
                     'montant' => $montant,
@@ -58,33 +78,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>💰 My Bank</title>
+<title>💰 My Bank avec Emprunts</title>
 <style>
 body { font-family: Arial; background: #f0f0f0; display:flex; justify-content:center; padding-top:50px;}
-.container { background:white; padding:20px 30px; border-radius:10px; box-shadow:0 0 10px #ccc; width:400px; text-align:center;}
+.container { background:white; padding:20px 30px; border-radius:10px; box-shadow:0 0 10px #ccc; width:500px; text-align:center;}
 input { padding:10px; margin:5px 0; width:80%; font-size:16px;}
 button { padding:10px 20px; margin:5px; font-size:16px; cursor:pointer;}
 .solde { font-weight:bold; margin-bottom:15px; font-size:18px;}
 .message { margin-top:10px; font-weight:bold; color:green;}
 .history { margin-top:20px; text-align:left; max-height:200px; overflow-y:auto; background:#f9f9f9; padding:10px; border-radius:5px;}
+.emprunts { margin-top:20px; text-align:left; max-height:150px; overflow-y:auto; background:#fff3cd; padding:10px; border-radius:5px;}
 </style>
 </head>
 <body>
 <div class="container">
-<h2>💰 My Bank</h2>
+<h2>💰 My Bank avec Emprunts</h2>
 <div class="solde">Solde actuel : <?= $_SESSION['solde'] ?> €</div>
 
 <form method="POST">
-    <input type="number" step="0.01" name="montant" placeholder="Montant" required>
+    <input type="number" step="0.01" name="montant" placeholder="Montant">
     <br>
     <button type="submit" name="action" value="depot">Déposer</button>
     <button type="submit" name="action" value="retrait">Retirer</button>
     <button type="submit" name="action" value="emprunt">💵 Emprunter</button>
+    <button type="submit" name="action" value="jour">⏭ Passer un jour</button>
 </form>
 
 <?php if($message !== ''): ?>
 <div class="message"><?= $message ?></div>
 <?php endif; ?>
+
+<div class="emprunts">
+<h3>📌 Emprunts en cours</h3>
+<?php if(!empty($_SESSION['emprunts'])): ?>
+    <?php foreach($_SESSION['emprunts'] as $e): ?>
+        <p>Montant initial : <?= $e['montant_initial'] ?> € | À rembourser : <?= $e['montant_du'] ?> € | Jours : <?= $e['jours'] ?></p>
+    <?php endforeach; ?>
+<?php else: ?>
+<p>Aucun emprunt en cours.</p>
+<?php endif; ?>
+</div>
 
 <div class="history">
 <h3>📜 Historique des transactions</h3>
@@ -96,6 +129,7 @@ button { padding:10px 20px; margin:5px; font-size:16px; cursor:pointer;}
 <p>Aucune transaction pour l'instant.</p>
 <?php endif; ?>
 </div>
+
 </div>
 </body>
 </html>
