@@ -42,3 +42,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>💰 My Bank</title>
+<style>
+body { font-family: Arial; background: #f0f0f0; display:flex; justify-content:center; padding-top:50px;}
+.container { background:white; padding:20px 30px; border-radius:10px; box-shadow:0 0 10px #ccc; width:400px; text-align:center;}
+input { padding:10px; margin:5px 0; width:80%; font-size:16px;}
+button { padding:10px 20px; margin:5px; font-size:16px; cursor:pointer;}
+.solde { font-weight:bold; margin-bottom:15px; font-size:18px;}
+.message { margin-top:10px; font-weight:bold; color:green;}
+.history { margin-top:20px; text-align:left; max-height:200px; overflow-y:auto; background:#f9f9f9; padding:10px; border-radius:5px;}
+</style>
+</head>
+<body>
+<div class="container">
+<h2>💰 My Bank</h2>
+<div class="solde">Solde actuel : <?= $_SESSION['solde'] ?> €</div>
+
+<form method="POST">
+    <input type="number" step="0.01" name="montant" placeholder="Montant" required>
+    <br>
+    <button type="submit" name="action" value="depot">Déposer</button>
+    <button type="submit" name="action" value="retrait">Retirer</button>
+</form>
+
+<?php if($message !== ''): ?>
+<div class="message"><?= $message ?></div>
+<?php endif; ?>
+
+<div class="history">
+<h3>📜 Historique des transactions</h3>
+<?php if(!empty($_SESSION['historique'])): ?>
+    <?php foreach(array_reverse($_SESSION['historique']) as $entry): ?>
+        <p><strong><?= $entry['date'] ?></strong> - <?= $entry['type'] ?> : <?= $entry['montant'] ?> €</p>
+    <?php endforeach; ?>
+<?php else: ?>
+<p>Aucune transaction pour l'instant.</p>
+<?php endif; ?>
+</div>
+</div>
+</body>
+</html>
