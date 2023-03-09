@@ -8,7 +8,7 @@ session_start();
 if (!isset($_SESSION['solde'])) $_SESSION['solde'] = 100;
 if (!isset($_SESSION['historique'])) $_SESSION['historique'] = [];
 
-// Gestion du POST pour dépôt ou retrait
+// Gestion du POST pour dépôt, retrait ou emprunt
 $message = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $montant = (float) ($_POST['montant'] ?? 0);
@@ -17,26 +17,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($montant <= 0) {
         $message = "⚠ Montant invalide.";
     } else {
-        if ($action === 'depot') {
-            $_SESSION['solde'] += $montant;
-            $_SESSION['historique'][] = [
-                'type' => 'Dépôt',
-                'montant' => $montant,
-                'date' => date('Y-m-d H:i:s')
-            ];
-            $message = "✅ Vous avez déposé $montant €.";
-        } elseif ($action === 'retrait') {
-            if ($montant > $_SESSION['solde']) {
-                $message = "⚠ Solde insuffisant pour retirer $montant €.";
-            } else {
-                $_SESSION['solde'] -= $montant;
+        switch($action) {
+            case 'depot':
+                $_SESSION['solde'] += $montant;
                 $_SESSION['historique'][] = [
-                    'type' => 'Retrait',
+                    'type' => 'Dépôt',
                     'montant' => $montant,
                     'date' => date('Y-m-d H:i:s')
                 ];
-                $message = "✅ Vous avez retiré $montant €.";
-            }
+                $message = "✅ Vous avez déposé $montant €.";
+                break;
+            case 'retrait':
+                if ($montant > $_SESSION['solde']) {
+                    $message = "⚠ Solde insuffisant pour retirer $montant €.";
+                } else {
+                    $_SESSION['solde'] -= $montant;
+                    $_SESSION['historique'][] = [
+                        'type' => 'Retrait',
+                        'montant' => $montant,
+                        'date' => date('Y-m-d H:i:s')
+                    ];
+                    $message = "✅ Vous avez retiré $montant €.";
+                }
+                break;
+            case 'emprunt':
+                $_SESSION['solde'] += $montant;
+                $_SESSION['historique'][] = [
+                    'type' => 'Emprunt',
+                    'montant' => $montant,
+                    'date' => date('Y-m-d H:i:s')
+                ];
+                $message = "💵 Vous avez emprunté $montant €.";
+                break;
         }
     }
 }
@@ -67,6 +79,7 @@ button { padding:10px 20px; margin:5px; font-size:16px; cursor:pointer;}
     <br>
     <button type="submit" name="action" value="depot">Déposer</button>
     <button type="submit" name="action" value="retrait">Retirer</button>
+    <button type="submit" name="action" value="emprunt">💵 Emprunter</button>
 </form>
 
 <?php if($message !== ''): ?>
