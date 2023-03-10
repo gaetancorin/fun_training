@@ -4,7 +4,7 @@
 
 session_start();
 
-// Initialiser le solde et l'historique si ce n'est pas déjà fait
+// Initialiser le solde, l'historique et les emprunts
 if (!isset($_SESSION['solde'])) $_SESSION['solde'] = 100;
 if (!isset($_SESSION['historique'])) $_SESSION['historique'] = [];
 if (!isset($_SESSION['emprunts'])) $_SESSION['emprunts'] = []; // tableau des emprunts en cours
@@ -20,56 +20,59 @@ function calculerInterets(&$emprunts, $taux) {
     }
 }
 
-// Gestion du POST pour dépôt, retrait, emprunt et jour suivant
+// Gestion du POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $montant = (float) ($_POST['montant'] ?? 0);
     $action = $_POST['action'] ?? '';
 
-    if ($action === 'jour') {
-        calculerInterets($_SESSION['emprunts'], $taux_interet);
-        $message = "📆 Un jour a passé, intérêts appliqués sur tous les emprunts.";
-    } elseif ($montant <= 0 && $action !== 'jour') {
-        $message = "⚠ Montant invalide.";
-    } else {
-        switch($action) {
-            case 'depot':
-                $_SESSION['solde'] += $montant;
-                $_SESSION['historique'][] = [
-                    'type' => 'Dépôt',
-                    'montant' => $montant,
-                    'date' => date('Y-m-d H:i:s')
-                ];
-                $message = "✅ Vous avez déposé $montant €.";
-                break;
-            case 'retrait':
-                if ($montant > $_SESSION['solde']) {
-                    $message = "⚠ Solde insuffisant pour retirer $montant €.";
+    switch($action) {
+        case 'jour':
+            calculerInterets($_SESSION['emprunts'], $taux_interet);
+            $message = "📆 Un jour a passé, intérêts appliqués sur tous les emprunts.";
+            break;
+        case 'depot':
+            if ($montant <= 0) { $message = "⚠ Montant invalide."; break; }
+            $_SESSION['solde'] += $montant;
+            $_SESSION['historique'][] = ['type'=>'Dépôt','montant'=>$montant,'date'=>date('Y-m-d H:i:s')];
+            $message = "✅ Vous avez déposé $montant €.";
+            break;
+        case 'retrait':
+            if ($montant <= 0) { $message = "⚠ Montant invalide."; break; }
+            if ($montant > $_SESSION['solde']) { $message = "⚠ Solde insuffisant pour retirer $montant €."; break; }
+            $_SESSION['solde'] -= $montant;
+            $_SESSION['historique'][] = ['type'=>'Retrait','montant'=>$montant,'date'=>date('Y-m-d H:i:s')];
+            $message = "✅ Vous avez retiré $montant €.";
+            break;
+        case 'emprunt':
+            if ($montant <= 0) { $message = "⚠ Montant invalide."; break; }
+            $_SESSION['solde'] += $montant;
+            $_SESSION['emprunts'][] = ['montant_initial'=>$montant,'montant_du'=>$montant,'jours'=>0,'date'=>date('Y-m-d H:i:s')];
+            $_SESSION['historique'][] = ['type'=>'Emprunt','montant'=>$montant,'date'=>date('Y-m-d H:i:s')];
+            $message = "💵 Vous avez emprunté $montant €.";
+            break;
+        case 'rembourser':
+            if ($montant <= 0) { $message = "⚠ Montant invalide."; break; }
+            if ($montant > $_SESSION['solde']) { $message = "⚠ Vous n'avez pas assez d'argent pour rembourser $montant €."; break; }
+
+            // Remboursement sur les emprunts les plus anciens en premier
+            foreach ($_SESSION['emprunts'] as $key => &$emprunt) {
+                if ($montant <= 0) break;
+                if ($emprunt['montant_du'] <= $montant) {
+                    $montant -= $emprunt['montant_du'];
+                    $_SESSION['solde'] -= $emprunt['montant_du'];
+                    $_SESSION['historique'][] = ['type'=>'Remboursement','montant'=>$emprunt['montant_du'],'date'=>date('Y-m-d H:i:s')];
+                    unset($_SESSION['emprunts'][$key]);
                 } else {
+                    $emprunt['montant_du'] -= $montant;
                     $_SESSION['solde'] -= $montant;
-                    $_SESSION['historique'][] = [
-                        'type' => 'Retrait',
-                        'montant' => $montant,
-                        'date' => date('Y-m-d H:i:s')
-                    ];
-                    $message = "✅ Vous avez retiré $montant €.";
+                    $_SESSION['historique'][] = ['type'=>'Remboursement','montant'=>$montant,'date'=>date('Y-m-d H:i:s')];
+                    $montant = 0;
                 }
-                break;
-            case 'emprunt':
-                $_SESSION['solde'] += $montant;
-                $_SESSION['emprunts'][] = [
-                    'montant_initial' => $montant,
-                    'montant_du' => $montant,
-                    'jours' => 0,
-                    'date' => date('Y-m-d H:i:s')
-                ];
-                $_SESSION['historique'][] = [
-                    'type' => 'Emprunt',
-                    'montant' => $montant,
-                    'date' => date('Y-m-d H:i:s')
-                ];
-                $message = "💵 Vous avez emprunté $montant €.";
-                break;
-        }
+            }
+            // Réindexer le tableau
+            $_SESSION['emprunts'] = array_values($_SESSION['emprunts']);
+            $message = "💸 Remboursement effectué.";
+            break;
     }
 }
 ?>
@@ -101,6 +104,7 @@ button { padding:10px 20px; margin:5px; font-size:16px; cursor:pointer;}
     <button type="submit" name="action" value="depot">Déposer</button>
     <button type="submit" name="action" value="retrait">Retirer</button>
     <button type="submit" name="action" value="emprunt">💵 Emprunter</button>
+    <button type="submit" name="action" value="rembourser">💸 Rembourser</button>
     <button type="submit" name="action" value="jour">⏭ Passer un jour</button>
 </form>
 
