@@ -16,15 +16,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['choix'])) {
     // Initialiser le vote pour ce choix si inexistant
     if (!isset($votes[$choix])) $votes[$choix] = 0;
 
-    // Vérifier si utilisateur a déjà voté
-    if (isset($_SESSION['a_vote']) && $_SESSION['a_vote'] === true) {
-        $message = "⚠ Vous avez déjà voté !";
-    } else {
-        $votes[$choix]++;
-        $_SESSION['a_vote'] = true;
-        file_put_contents($file, json_encode($votes));
-        $message = "✅ Merci pour votre vote !";
-    }
+    $votes[$choix]++;
+    file_put_contents($file, json_encode($votes));
+    $message = "✅ Merci pour votre vote !";
 }
 
 // Calcul du total pour le pourcentage
@@ -52,14 +46,12 @@ button { padding:10px 20px; margin:5px; font-size:16px; cursor:pointer;}
 <div class="message"><?= $message ?></div>
 <?php endif; ?>
 
-<?php if(!isset($_SESSION['a_vote']) || $_SESSION['a_vote'] === false): ?>
 <form method="POST">
     <button type="submit" name="choix" value="PHP">PHP</button>
     <button type="submit" name="choix" value="Python">Python</button>
     <button type="submit" name="choix" value="JavaScript">JavaScript</button>
     <button type="submit" name="choix" value="Autre">Autre</button>
 </form>
-<?php endif; ?>
 
 <h3>📊 Résultats :</h3>
 <?php foreach ($votes as $option => $count):
