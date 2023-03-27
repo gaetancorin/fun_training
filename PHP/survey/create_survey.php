@@ -56,6 +56,11 @@ button { padding:10px 20px; margin:5px; font-size:16px; cursor:pointer;}
     <button type="submit">Créer le sondage</button>
 </form>
 
+<!-- Bouton pour aller vers survey.php -->
+<form method="GET" action="survey.php">
+    <button type="submit">📊 Aller voter sur le sondage</button>
+</form>
+
 <?php if(file_exists($file)):
     $survey = json_decode(file_get_contents($file), true); ?>
     <h3>Sondage actuel :</h3>

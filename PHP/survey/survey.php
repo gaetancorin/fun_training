@@ -53,6 +53,11 @@ button { padding:10px 20px; margin:5px; font-size:16px; cursor:pointer;}
     <?php endforeach; ?>
 </form>
 
+<!-- Bouton pour aller vers la création de sondage -->
+<form method="GET" action="create_survey.php">
+    <button type="submit">📝 Créer un nouveau sondage</button>
+</form>
+
 <div class="results">
 <h3>📊 Résultats actuels :</h3>
 <ul>
