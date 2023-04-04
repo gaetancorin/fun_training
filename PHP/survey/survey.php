@@ -1,24 +1,22 @@
 <?php
-// Pour lancer : php -S localhost:8000
-// Puis aller sur : http://localhost:8000/survey.php
-
 session_start();
 
-$file = 'current_survey.json';
+$dir = __DIR__ . '/surveys';
+$file = $_GET['file'] ?? '';
+$fullpath = $dir . '/' . $file;
+
+if (!file_exists($fullpath)) {
+    die("⚠ Sondage introuvable. Retournez à la <a href='survey_list.php'>liste des sondages</a>.");
+}
+
+$survey = json_decode(file_get_contents($fullpath), true);
 $message = '';
 
-// Lire le sondage existant
-if (!file_exists($file)) {
-    die("⚠ Aucun sondage n'est disponible. Créez-en un via create_survey.php.");
-}
-$survey = json_decode(file_get_contents($file), true);
-
-// Si vote soumis
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $vote = $_POST['vote'] ?? '';
     if ($vote !== '' && in_array($vote, $survey['options'])) {
         $survey['votes'][$vote]++;
-        file_put_contents($file, json_encode($survey));
+        file_put_contents($fullpath, json_encode($survey));
         $message = "✅ Merci pour votre vote pour \"$vote\" !";
     } else {
         $message = "⚠ Option invalide.";
@@ -30,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>🗳️ Sondage</title>
+<title>🗳️ <?= htmlspecialchars($survey['title']) ?></title>
 <style>
 body { font-family: Arial; background: #f0f0f0; display:flex; justify-content:center; padding-top:50px; }
 .container { background:white; padding:20px 30px; border-radius:10px; box-shadow:0 0 10px #ccc; width:500px; text-align:center;}
@@ -53,9 +51,8 @@ button { padding:10px 20px; margin:5px; font-size:16px; cursor:pointer;}
     <?php endforeach; ?>
 </form>
 
-<!-- Bouton pour aller vers la création de sondage -->
-<form method="GET" action="create_survey.php">
-    <button type="submit">📝 Créer un nouveau sondage</button>
+<form method="GET" action="survey_list.php">
+    <button type="submit">📋 Retour à la liste des sondages</button>
 </form>
 
 <div class="results">

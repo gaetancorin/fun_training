@@ -5,7 +5,7 @@
 PHP/taches.json
 PHP/messages_chat.json
 PHP/tirages.json
-PHP/survey/current_survey.json
+PHP/survey/surveys/
 
 help.txt
 no_duplicate.txt

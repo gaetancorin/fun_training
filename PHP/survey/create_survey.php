@@ -1,13 +1,11 @@
 <?php
-// Pour lancer : php -S localhost:8000
-// Puis aller sur : http://localhost:8000/survey/create_survey.php
-
 session_start();
 
-$file = 'current_survey.json';
+$dir = __DIR__ . '/surveys';
+if (!is_dir($dir)) mkdir($dir);
+
 $message = '';
 
-// Si formulaire soumis
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title = trim($_POST['title'] ?? '');
     $options = trim($_POST['options'] ?? '');
@@ -21,7 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'options' => $optionsArray,
             'votes' => array_fill_keys($optionsArray, 0)
         ];
-        file_put_contents($file, json_encode($survey));
+        $filename = $dir . '/' . preg_replace('/[^a-zA-Z0-9_-]/', '_', $title) . '.json';
+        file_put_contents($filename, json_encode($survey));
         $message = "✅ Sondage créé avec succès !";
     }
 }
@@ -56,21 +55,10 @@ button { padding:10px 20px; margin:5px; font-size:16px; cursor:pointer;}
     <button type="submit">Créer le sondage</button>
 </form>
 
-<!-- Bouton pour aller vers survey.php -->
-<form method="GET" action="survey.php">
-    <button type="submit">📊 Aller voter sur le sondage</button>
+<br>
+<form method="GET" action="survey_list.php">
+    <button type="submit">📋 Voir la liste des sondages</button>
 </form>
-
-<?php if(file_exists($file)):
-    $survey = json_decode(file_get_contents($file), true); ?>
-    <h3>Sondage actuel :</h3>
-    <p><strong><?= htmlspecialchars($survey['title']) ?></strong></p>
-    <ul>
-    <?php foreach ($survey['options'] as $opt): ?>
-        <li><?= htmlspecialchars($opt) ?> (<?= $survey['votes'][$opt] ?? 0 ?> votes)</li>
-    <?php endforeach; ?>
-    </ul>
-<?php endif; ?>
 </div>
 </body>
 </html>
