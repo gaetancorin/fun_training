@@ -11,19 +11,19 @@ $message = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['add_habit'])) {
         $name = trim($_POST['habit_name'] ?? '');
-        if ($name === '') {
-            $message = "⚠ Veuillez entrer un nom d'habitude.";
-        } else {
+        if ($name === '') $message = "⚠ Veuillez entrer un nom d'habitude.";
+        else {
             $habits[$name] = $habits[$name] ?? [];
             file_put_contents($file, json_encode($habits));
             $message = "✅ Habitude '$name' ajoutée !";
         }
     }
 
-    if (isset($_POST['check'])) {
+    if (isset($_POST['toggle'])) {
         $habit = $_POST['habit'];
-        $date = date('Y-m-d');
-        $habits[$habit][$date] = true;
+        $day = $_POST['day'];
+        if (isset($habits[$habit][$day])) unset($habits[$habit][$day]);
+        else $habits[$habit][$day] = true;
         file_put_contents($file, json_encode($habits));
     }
 
@@ -36,9 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 function last7days() {
     $days = [];
-    for ($i = 6; $i >= 0; $i--) {
-        $days[] = date('Y-m-d', strtotime("-$i days"));
-    }
+    for ($i = 6; $i >= 0; $i--) $days[] = date('Y-m-d', strtotime("-$i days"));
     return $days;
 }
 ?>
@@ -60,7 +58,7 @@ button { padding:5px 10px; font-size:16px; margin-left:5px; cursor:pointer;}
 .done { color: green; font-weight:bold; }
 .message { margin:10px 0; font-weight:bold; color:green;}
 .grid { margin-top:5px; display:flex; gap:5px;}
-.cell { width:30px; height:30px; display:flex; justify-content:center; align-items:center; border-radius:3px; background:#ddd;}
+.cell { width:30px; height:30px; display:flex; justify-content:center; align-items:center; border-radius:3px; background:#ddd; cursor:pointer;}
 .cell.done { background: #4caf50; color:white;}
 </style>
 </head>
@@ -86,14 +84,6 @@ button { padding:5px 10px; font-size:16px; margin-left:5px; cursor:pointer;}
                     (<?= count($days) ?> jour<?= count($days) > 1 ? 's' : '' ?>)
                 </div>
                 <div>
-                    <?php if(!isset($days[date('Y-m-d')])): ?>
-                        <form method="POST" style="display:inline;">
-                            <input type="hidden" name="habit" value="<?= htmlspecialchars($habit) ?>">
-                            <button type="submit" name="check">✅ Aujourd'hui</button>
-                        </form>
-                    <?php else: ?>
-                        <span class="done">✔ Fait aujourd'hui</span>
-                    <?php endif; ?>
                     <form method="POST" style="display:inline;">
                         <input type="hidden" name="habit" value="<?= htmlspecialchars($habit) ?>">
                         <button type="submit" name="delete">🗑️ Supprimer</button>
@@ -103,9 +93,13 @@ button { padding:5px 10px; font-size:16px; margin-left:5px; cursor:pointer;}
 
             <div class="grid">
                 <?php foreach(last7days() as $day): ?>
-                    <div class="cell <?= isset($days[$day]) ? 'done' : '' ?>" title="<?= $day ?>">
-                        <?= date('d', strtotime($day)) ?>
-                    </div>
+                    <form method="POST" style="display:inline;">
+                        <input type="hidden" name="habit" value="<?= htmlspecialchars($habit) ?>">
+                        <input type="hidden" name="day" value="<?= $day ?>">
+                        <button type="submit" name="toggle" class="cell <?= isset($days[$day]) ? 'done' : '' ?>" title="<?= $day ?>">
+                            <?= date('d', strtotime($day)) ?>
+                        </button>
+                    </form>
                 <?php endforeach; ?>
             </div>
         </div>
