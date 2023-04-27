@@ -34,10 +34,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-function last7days() {
+function daysInMonth($monthOffset = 0) {
     $days = [];
-    for ($i = 6; $i >= 0; $i--) $days[] = date('Y-m-d', strtotime("-$i days"));
+    $year = date('Y', strtotime("+$monthOffset month"));
+    $month = date('m', strtotime("+$monthOffset month"));
+    $numDays = date('t', strtotime("+$monthOffset month"));
+    for ($i = 1; $i <= $numDays; $i++) {
+        $days[] = date('Y-m-d', strtotime("$year-$month-$i"));
+    }
     return $days;
+}
+
+function monthYear($monthOffset = 0) {
+    return date('F Y', strtotime("+$monthOffset month"));
 }
 ?>
 
@@ -48,7 +57,7 @@ function last7days() {
 <title>📋 Habit Tracker</title>
 <style>
 body { font-family: Arial; background: #f0f0f0; display:flex; justify-content:center; padding-top:30px;}
-.container { background:white; padding:20px 30px; border-radius:10px; box-shadow:0 0 10px #ccc; width:600px;}
+.container { background:white; padding:20px 30px; border-radius:10px; box-shadow:0 0 10px #ccc; width:1000px;}
 h2 { text-align:center; }
 form { margin-bottom: 15px; }
 input { padding:5px; font-size:16px; width:70%; }
@@ -57,9 +66,10 @@ button { padding:5px 10px; font-size:16px; margin-left:5px; cursor:pointer;}
 .habit-header { display:flex; justify-content: space-between; align-items:center; }
 .done { color: green; font-weight:bold; }
 .message { margin:10px 0; font-weight:bold; color:green;}
-.grid { margin-top:5px; display:flex; gap:5px;}
-.cell { width:30px; height:30px; display:flex; justify-content:center; align-items:center; border-radius:3px; background:#ddd; cursor:pointer;}
+.grid { margin-top:5px; display:flex; flex-wrap: wrap; gap:3px;}
+.cell { width:30px; height:30px; display:flex; justify-content:center; align-items:center; border-radius:3px; background:#ddd; cursor:pointer; font-size:12px;}
 .cell.done { background: #4caf50; color:white;}
+.month-label { font-weight:bold; margin-top:10px; }
 </style>
 </head>
 <body>
@@ -91,17 +101,20 @@ button { padding:5px 10px; font-size:16px; margin-left:5px; cursor:pointer;}
                 </div>
             </div>
 
-            <div class="grid">
-                <?php foreach(last7days() as $day): ?>
-                    <form method="POST" style="display:inline;">
-                        <input type="hidden" name="habit" value="<?= htmlspecialchars($habit) ?>">
-                        <input type="hidden" name="day" value="<?= $day ?>">
-                        <button type="submit" name="toggle" class="cell <?= isset($days[$day]) ? 'done' : '' ?>" title="<?= $day ?>">
-                            <?= date('d', strtotime($day)) ?>
-                        </button>
-                    </form>
-                <?php endforeach; ?>
-            </div>
+            <?php for($m=0; $m<=0; $m++): ?>
+                <div class="month-label"><?= monthYear($m) ?></div>
+                <div class="grid">
+                    <?php foreach(daysInMonth($m) as $day): ?>
+                        <form method="POST" style="display:inline;">
+                            <input type="hidden" name="habit" value="<?= htmlspecialchars($habit) ?>">
+                            <input type="hidden" name="day" value="<?= $day ?>">
+                            <button type="submit" name="toggle" class="cell <?= isset($days[$day]) ? 'done' : '' ?>" title="<?= $day ?>">
+                                <?= date('d', strtotime($day)) ?>
+                            </button>
+                        </form>
+                    <?php endforeach; ?>
+                </div>
+            <?php endfor; ?>
         </div>
     <?php endforeach; ?>
 <?php else: ?>
