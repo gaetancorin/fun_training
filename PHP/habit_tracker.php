@@ -7,6 +7,8 @@ session_start();
 $file = 'habits.json';
 $habits = file_exists($file) ? json_decode(file_get_contents($file), true) : [];
 
+$monthOffset = isset($_GET['month_offset']) ? (int)$_GET['month_offset'] : 0;
+
 $message = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['add_habit'])) {
@@ -69,7 +71,8 @@ button { padding:5px 10px; font-size:16px; margin-left:5px; cursor:pointer;}
 .grid { margin-top:5px; display:flex; flex-wrap: wrap; gap:3px;}
 .cell { width:30px; height:30px; display:flex; justify-content:center; align-items:center; border-radius:3px; background:#ddd; cursor:pointer; font-size:12px;}
 .cell.done { background: #4caf50; color:white;}
-.month-label { font-weight:bold; margin-top:10px; }
+.month-label { font-weight:bold; margin-top:10px; display:flex; justify-content: space-between; align-items:center; }
+.month-label span { font-size:16px; }
 </style>
 </head>
 <body>
@@ -84,6 +87,12 @@ button { padding:5px 10px; font-size:16px; margin-left:5px; cursor:pointer;}
     <input type="text" name="habit_name" placeholder="Nouvelle habitude" required>
     <button type="submit" name="add_habit">➕ Ajouter</button>
 </form>
+
+<div class="month-label">
+    <a href="?month_offset=<?= $monthOffset-1 ?>">&larr; Mois précédent</a>
+    <span><?= monthYear($monthOffset) ?></span>
+    <a href="?month_offset=<?= $monthOffset+1 ?>">Mois suivant &rarr;</a>
+</div>
 
 <?php if(!empty($habits)): ?>
     <?php foreach($habits as $habit => $days): ?>
@@ -101,20 +110,17 @@ button { padding:5px 10px; font-size:16px; margin-left:5px; cursor:pointer;}
                 </div>
             </div>
 
-            <?php for($m=0; $m<=0; $m++): ?>
-                <div class="month-label"><?= monthYear($m) ?></div>
-                <div class="grid">
-                    <?php foreach(daysInMonth($m) as $day): ?>
-                        <form method="POST" style="display:inline;">
-                            <input type="hidden" name="habit" value="<?= htmlspecialchars($habit) ?>">
-                            <input type="hidden" name="day" value="<?= $day ?>">
-                            <button type="submit" name="toggle" class="cell <?= isset($days[$day]) ? 'done' : '' ?>" title="<?= $day ?>">
-                                <?= date('d', strtotime($day)) ?>
-                            </button>
-                        </form>
-                    <?php endforeach; ?>
-                </div>
-            <?php endfor; ?>
+            <div class="grid">
+                <?php foreach(daysInMonth($monthOffset) as $day): ?>
+                    <form method="POST" style="display:inline;">
+                        <input type="hidden" name="habit" value="<?= htmlspecialchars($habit) ?>">
+                        <input type="hidden" name="day" value="<?= $day ?>">
+                        <button type="submit" name="toggle" class="cell <?= isset($days[$day]) ? 'done' : '' ?>" title="<?= $day ?>">
+                            <?= date('d', strtotime($day)) ?>
+                        </button>
+                    </form>
+                <?php endforeach; ?>
+            </div>
         </div>
     <?php endforeach; ?>
 <?php else: ?>
