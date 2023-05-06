@@ -5,6 +5,7 @@ import json
 import os
 from datetime import datetime
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 
 FILE = "budget_data.json"
 
@@ -15,9 +16,11 @@ if os.path.exists(FILE):
 else:
     data = []
 
+
 def save_data():
     with open(FILE, "w") as f:
         json.dump(data, f, indent=4)
+
 
 def add_transaction():
     type_ = input("Type (revenu/dépense) : ").strip().lower()
@@ -31,7 +34,18 @@ def add_transaction():
         print("⚠ Montant invalide")
         return
     description = input("Description : ").strip()
-    date = datetime.now().strftime("%Y-%m-%d")
+
+    date_input = input("Date (YYYY-MM-DD) [laisser vide = aujourd'hui] : ").strip()
+    if date_input == "":
+        date = datetime.now().strftime("%Y-%m-%d")
+    else:
+        try:
+            datetime.strptime(date_input, "%Y-%m-%d")
+            date = date_input
+        except ValueError:
+            print("⚠ Format de date invalide. Utilisation de la date d'aujourd'hui.")
+            date = datetime.now().strftime("%Y-%m-%d")
+
     transaction = {
         "type": type_,
         "amount": amount,
@@ -40,7 +54,8 @@ def add_transaction():
     }
     data.append(transaction)
     save_data()
-    print("✅ Transaction ajoutée !")
+    print(f"✅ Transaction ajoutée pour le {date} !")
+
 
 def show_summary():
     revenus = sum(t["amount"] for t in data if t["type"] == "revenu")
@@ -51,6 +66,7 @@ def show_summary():
     print(f"Dépenses : {depenses} €")
     print(f"Solde : {solde} €\n")
 
+
 def show_transactions():
     if not data:
         print("Aucune transaction.")
@@ -60,13 +76,17 @@ def show_transactions():
         print(f"{t['date']} - {t['type'].capitalize()} - {t['amount']} € - {t['description']}")
     print()
 
+
 def plot_graph():
     if not data:
         print("Aucune donnée pour afficher le graphique.")
         return
-    dates = [t["date"] for t in data]
-    revenus = [t["amount"] if t["type"]=="revenu" else 0 for t in data]
-    depenses = [t["amount"] if t["type"]=="depense" else 0 for t in data]
+
+    sorted_data = sorted(data, key=lambda x: x["date"])
+    dates = [datetime.strptime(t["date"], "%Y-%m-%d") for t in sorted_data]
+    revenus = [t["amount"] if t["type"]=="revenu" else 0 for t in sorted_data]
+    depenses = [t["amount"] if t["type"]=="depense" else 0 for t in sorted_data]
+
     cum_revenus, cum_depenses, cum_solde = [], [], []
     total_revenus, total_depenses = 0, 0
     for r, d in zip(revenus, depenses):
@@ -75,17 +95,23 @@ def plot_graph():
         cum_revenus.append(total_revenus)
         cum_depenses.append(total_depenses)
         cum_solde.append(total_revenus - total_depenses)
+
     plt.figure(figsize=(10,5))
-    plt.plot(dates, cum_revenus, label="Revenus", color="green", marker="o")
-    plt.plot(dates, cum_depenses, label="Dépenses", color="red", marker="o")
-    plt.plot(dates, cum_solde, label="Solde", color="blue", marker="o")
+    plt.plot(dates, cum_revenus, label="Revenus", color="green", marker="o", markersize=8)
+    plt.plot(dates, cum_depenses, label="Dépenses", color="red", marker="o", markersize=8)
+    plt.plot(dates, cum_solde, label="Solde", color="blue", marker="o", markersize=8)
+
+    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+    plt.gca().xaxis.set_major_locator(mdates.AutoDateLocator())
     plt.xticks(rotation=45)
+
     plt.title("Budget Tracker")
     plt.xlabel("Date")
     plt.ylabel("Montant (€)")
     plt.legend()
     plt.tight_layout()
     plt.show()
+
 
 def main():
     while True:
@@ -109,6 +135,7 @@ def main():
             break
         else:
             print("⚠ Choix invalide")
+
 
 if __name__ == "__main__":
     main()
