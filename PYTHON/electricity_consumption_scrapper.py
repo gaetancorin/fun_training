@@ -1,10 +1,9 @@
 # electricity_consumption_scrapper.py
-# Nécessite : pip install requests pandas matplotlib
+# Nécessite : pip install pandas matplotlib requests
 
-import requests
 import pandas as pd
 import matplotlib.pyplot as plt
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 import matplotlib.dates as mdates
 
 def fetch_eco2mix_data():
@@ -21,9 +20,14 @@ def fetch_eco2mix_data():
             ],
             parse_dates=['date_heure']
         )
-        df.rename(columns={'date_heure':'datetime'}, inplace=True)
-        # Conversion en datetime avec fuseau horaire UTC pour homogénéiser
-        df['datetime'] = pd.to_datetime(df['datetime'], utc=True, errors='coerce')
+
+        # Nettoyage
+        df.rename(columns={'date_heure': 'datetime'}, inplace=True)
+        df['datetime'] = pd.to_datetime(df['datetime'], errors='coerce').dt.tz_localize(None)
+
+        # Agrégation par heure (pour éviter les doublons 15min / 30min)
+        df = df.groupby('datetime', as_index=False).mean(numeric_only=True)
+
         return df.dropna(subset=['datetime'])
     except Exception as e:
         print("Erreur lors de la récupération :", e)
@@ -33,7 +37,7 @@ def plot_consumption_and_production(df, hours=48):
     """
     Affiche la consommation et les principales sources de production.
     """
-    now = datetime.now(timezone.utc)  # -> datetime "aware" (avec fuseau horaire UTC)
+    now = datetime.now()
     df_recent = df[df['datetime'] >= now - timedelta(hours=hours)]
 
     plt.figure(figsize=(12,6))
@@ -47,8 +51,8 @@ def plot_consumption_and_production(df, hours=48):
     plt.plot(df_recent['datetime'], df_recent['gaz'], label="Gaz", color='brown')
 
     plt.title(f"Consommation et production électrique en France (dernières {hours} heures)")
-    plt.xlabel("Date / Heure (UTC)")
-    plt.ylabel("MW")
+    plt.xlabel("Date / Heure (heure locale)")
+    plt.ylabel("Puissance (MW)")
     plt.legend()
     plt.grid(True)
     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%d/%m %Hh'))
