@@ -35,8 +35,8 @@ def plot_consumption_and_production(df, hours=48):
     """
     Affiche la consommation et les principales sources de production.
     """
-    now = datetime.now()
-    df_recent = df[(df['datetime'] <= now) & (df['datetime'] >= now - timedelta(hours=hours))]
+    now = datetime.now().replace(minute=0, second=0, microsecond=0)
+    df_recent = df[(df['datetime'] < now) & (df['datetime'] >= now - timedelta(hours=hours))]
 
     plt.figure(figsize=(12,6))
     plt.plot(df_recent['datetime'], df_recent['consommation'], label="Consommation", color='black', linewidth=2)
