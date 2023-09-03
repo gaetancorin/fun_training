@@ -1,6 +1,3 @@
-# electricity_consumption_scrapper.py
-# Nécessite : pip install pandas matplotlib requests
-
 import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
@@ -25,8 +22,9 @@ def fetch_eco2mix_data():
         df.rename(columns={'date_heure': 'datetime'}, inplace=True)
         df['datetime'] = pd.to_datetime(df['datetime'], errors='coerce').dt.tz_localize(None)
 
-        # Agrégation par heure (pour éviter les doublons 15min / 30min)
-        df = df.groupby('datetime', as_index=False).mean(numeric_only=True)
+        # Somme par heure (pour éviter les doublons 15min / 30min)
+        df = df.dropna(subset=['datetime']).set_index('datetime').sort_index()
+        df = df.resample('H').sum(numeric_only=True).reset_index()
 
         return df.dropna(subset=['datetime'])
     except Exception as e:
@@ -38,7 +36,7 @@ def plot_consumption_and_production(df, hours=48):
     Affiche la consommation et les principales sources de production.
     """
     now = datetime.now()
-    df_recent = df[df['datetime'] >= now - timedelta(hours=hours)]
+    df_recent = df[(df['datetime'] <= now) & (df['datetime'] >= now - timedelta(hours=hours))]
 
     plt.figure(figsize=(12,6))
     plt.plot(df_recent['datetime'], df_recent['consommation'], label="Consommation", color='black', linewidth=2)
