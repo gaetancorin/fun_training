@@ -11,12 +11,12 @@ def generate_code():
 
 def get_guess():
     while True:
-        guess = input(f"Entrez {CODE_LENGTH} chiffres (1-6) séparés par espace : ").split()
-        if len(guess) != CODE_LENGTH:
+        guess_input = input(f"Entrez {CODE_LENGTH} chiffres (1-6) sans espaces : ").strip()
+        if len(guess_input) != CODE_LENGTH:
             print(f"Erreur : il faut {CODE_LENGTH} chiffres.")
             continue
         try:
-            guess = [int(x) for x in guess]
+            guess = [int(ch) for ch in guess_input]
             if all(x in COLORS for x in guess):
                 return guess
             else:
