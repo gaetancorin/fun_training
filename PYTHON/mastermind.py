@@ -4,10 +4,8 @@ CODE_LENGTH = 4
 MAX_ATTEMPTS = 10
 COLORS = [1, 2, 3, 4, 5, 6]  # ou ["R","G","B","Y","O","P"]
 
-
 def generate_code():
     return [random.choice(COLORS) for _ in range(CODE_LENGTH)]
-
 
 def get_guess():
     while True:
@@ -24,17 +22,26 @@ def get_guess():
         except ValueError:
             print("Entrée invalide, uniquement des chiffres.")
 
-
 def evaluate_guess(code, guess):
-    # Comptage des ✅ et ⚪
+    # Calcul des ✅
     correct_pos = sum(c == g for c, g in zip(code, guess))
-    # Pour les bons chiffres au mauvais endroit
-    code_counts = {x: code.count(x) for x in set(code)}
-    guess_counts = {x: guess.count(x) for x in set(guess)}
-    correct_color = sum(min(code_counts.get(x, 0), guess_counts.get(x, 0)) for x in guess_counts.values())
-    correct_color = correct_color - correct_pos  # enlever les ✅
-    return correct_pos, correct_color
 
+    # Préparer les restes pour ⚪
+    code_remaining = []
+    guess_remaining = []
+    for c, g in zip(code, guess):
+        if c != g:
+            code_remaining.append(c)
+            guess_remaining.append(g)
+
+    # Calcul des ⚪
+    correct_color = 0
+    for g in guess_remaining:
+        if g in code_remaining:
+            correct_color += 1
+            code_remaining.remove(g)  # retire pour ne pas compter deux fois
+
+    return correct_pos, correct_color
 
 def main():
     code = generate_code()
@@ -45,12 +52,8 @@ def main():
     while attempts < MAX_ATTEMPTS:
         guess = get_guess()
         attempts += 1
-        correct_pos = sum(c == g for c, g in zip(code, guess))
-        # Calcul des bonnes couleurs au mauvais endroit
-        code_counts = {x: code.count(x) for x in set(code)}
-        guess_counts = {x: guess.count(x) for x in set(guess)}
-        correct_color = sum(min(code_counts.get(x, 0), guess_counts.get(x, 0)) for x in guess_counts)
-        correct_color -= correct_pos
+
+        correct_pos, correct_color = evaluate_guess(code, guess)
 
         print(f"Résultat : ✅ {correct_pos} | ⚪ {correct_color}  (Tentative {attempts}/{MAX_ATTEMPTS})\n")
 
@@ -59,7 +62,6 @@ def main():
             break
     else:
         print(f"😢 Vous avez perdu ! Le code était : {code}")
-
 
 if __name__ == "__main__":
     main()
