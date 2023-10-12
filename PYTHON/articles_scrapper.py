@@ -3,8 +3,15 @@ from bs4 import BeautifulSoup
 import json
 from datetime import datetime
 
-URL = "https://www.lemonde.fr"  # site à scraper
+URL = "https://www.lemonde.fr"
 HEADERS = {"User-Agent": "Mozilla/5.0"}
+
+
+def extract_category(title):
+    marker = "Article réservé aux abonnés"
+    if marker in title:
+        return title.split(marker)[0].strip()
+    return "Non définie"
 
 
 def fetch_articles(limit=10):
@@ -14,7 +21,6 @@ def fetch_articles(limit=10):
         return []
 
     soup = BeautifulSoup(response.text, "html.parser")
-
     articles = []
     links_seen = set()
 
@@ -22,7 +28,7 @@ def fetch_articles(limit=10):
         href = a["href"]
         if "/article/" in href:
             title = a.get_text(strip=True)
-            if len(title) < 5:  # ignore les titres trop courts
+            if len(title) < 5:
                 continue
             link = href if href.startswith("http") else URL + href
 
@@ -30,13 +36,15 @@ def fetch_articles(limit=10):
                 continue
             links_seen.add(link)
 
-            # Petite "feature" utile : résumé (les 50 premiers caractères du titre)
+            # Extra : résumé court
             summary = title[:50] + ("…" if len(title) > 50 else "")
+            category = extract_category(title)
 
             articles.append({
                 "title": title,
                 "link": link,
                 "summary": summary,
+                "category": category,
                 "timestamp": datetime.now().isoformat()
             })
 
