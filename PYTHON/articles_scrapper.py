@@ -36,14 +36,11 @@ def fetch_articles(limit=10):
                 continue
             links_seen.add(link)
 
-            # Extra : résumé court
-            summary = title[:50] + ("…" if len(title) > 50 else "")
             category = extract_category(title)
 
             articles.append({
                 "title": title,
                 "link": link,
-                "summary": summary,
                 "category": category,
                 "timestamp": datetime.now().isoformat()
             })
