@@ -23,16 +23,12 @@ for card in soup.find_all("div", class_="card entity-card entity-card-list cf"):
         title = title_tag.get_text(strip=True)
         link = "https://www.allocine.fr" + title_tag["href"]
 
-        genre_tag = card.find("span", class_="meta-body-item meta-body-info")
-        genre = genre_tag.get_text(strip=True) if genre_tag else "Genre inconnu"
-
         date_tag = card.find("span", class_="date")
         date = date_tag.get_text(strip=True) if date_tag else "Date inconnue"
 
         films.append({
             "title": title,
             "link": link,
-            "genre": genre,
             "release_date": date
         })
 
