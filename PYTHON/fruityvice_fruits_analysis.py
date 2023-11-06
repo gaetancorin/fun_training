@@ -10,22 +10,24 @@ if response.status_code != 200:
 
 fruits = response.json()
 
-# --- 2. Extraire certaines données pour analyse ---
-names = [fruit['name'] for fruit in fruits]
-calories = [fruit['nutritions']['calories'] for fruit in fruits]
-sugar = [fruit['nutritions']['sugar'] for fruit in fruits]
+# --- 2. Trier les fruits par calories décroissantes ---
+fruits_sorted = sorted(fruits, key=lambda x: x['nutritions']['calories'], reverse=True)
 
-# --- 3. Afficher les 5 fruits les plus caloriques ---
-top_calories = sorted(zip(names, calories), key=lambda x: x[1], reverse=True)[:5]
-print("Top 5 fruits les plus caloriques :")
-for name, cal in top_calories:
+# --- 3. Préparer les données pour le top 10 ---
+top_fruits = fruits_sorted[:30]
+names = [fruit['name'] for fruit in top_fruits]
+calories = [fruit['nutritions']['calories'] for fruit in top_fruits]
+
+# --- 4. Afficher le top 10 dans la console ---
+print("Top 10 fruits les plus caloriques :")
+for name, cal in zip(names, calories):
     print(f"{name} : {cal} calories")
 
-# --- 4. Graphique calories vs fruits ---
-plt.figure(figsize=(12,6))
-plt.bar(names, calories, color='orange')
+# --- 5. Graphique ---
+plt.figure(figsize=(10,6))
+plt.bar(names, calories, color='tomato')
 plt.xticks(rotation=45, ha='right')
 plt.ylabel("Calories")
-plt.title("Calories par fruit (Fruityvice API)")
+plt.title("Top 10 fruits les plus caloriques (Fruityvice API)")
 plt.tight_layout()
 plt.show()
