@@ -4,8 +4,7 @@ from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Compare deux robots RoboHash en ignorant les pixels noirs du fond
-
+# Compare deux robots RoboHash en ignorant strictement les pixels noirs (0,0,0)
 def get_robot_image(text):
     url = f"https://robohash.org/{text}.png"
     response = requests.get(url)
@@ -21,18 +20,16 @@ def compare_images(img1, img2):
     arr1 = np.array(img1)
     arr2 = np.array(img2)
 
-    # Créer un masque pour ignorer le fond noir (pixels très sombres)
-    mask = np.logical_or.reduce([
-        arr1[:, :, 0] > 20,
-        arr1[:, :, 1] > 20,
-        arr1[:, :, 2] > 20
-    ])
+    # Masque : pixels NON noirs dans les deux images
+    mask1 = np.any(arr1 != [0, 0, 0], axis=-1)
+    mask2 = np.any(arr2 != [0, 0, 0], axis=-1)
+    mask = np.logical_and(mask1, mask2)
 
-    # Appliquer le masque sur les deux images
+    # Appliquer le masque (on ne garde que les pixels non noirs dans les 2 images)
     arr1_masked = arr1[mask]
     arr2_masked = arr2[mask]
 
-    # Pour éviter les tailles différentes après masque
+    # Éviter les différences de taille après masquage
     n = min(len(arr1_masked), len(arr2_masked))
     arr1_masked = arr1_masked[:n]
     arr2_masked = arr2_masked[:n]
@@ -62,6 +59,6 @@ if __name__ == "__main__":
     plt.title(f"Robot: {word2}")
     plt.axis("off")
 
-    plt.suptitle(f"Similarité (sans fond noir) : {similarity:.2f} %", fontsize=14)
+    plt.suptitle(f"Similarité (sans pixels 0,0,0) : {similarity:.2f} %", fontsize=14)
     plt.tight_layout()
     plt.show()
