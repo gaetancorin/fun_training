@@ -12,6 +12,7 @@ PYTHON/quotes.json
 PYTHON/budget_data.json
 PYTHON/articles_recent.json
 PYTHON/films_recent.json
+PYTHON/robots/
 
 help.txt
 no_duplicate.txt
