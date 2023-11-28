@@ -3,6 +3,9 @@ import time
 import requests
 from io import BytesIO
 from PIL import Image
+import numpy as np
+import colorsys
+import pandas as pd
 
 NUM_IMAGES = 20
 OUTPUT_DIR = "robots"
@@ -39,3 +42,28 @@ for i in range(1, NUM_IMAGES + 1):
     time.sleep(0.2)
 
 print(f"\nTerminé : {len(images)} images téléchargées et sauvegardées dans '{OUTPUT_DIR}'.")
+
+# === Étape 2 : Extraction des caractéristiques visuelles ===
+features = []
+
+for ident, img in zip(ids, images):
+    arr = np.array(img) / 255.0
+    mask = ~(np.all(arr == [0, 0, 0], axis=-1))
+    arr = arr[mask]
+
+    r, g, b = arr.mean(axis=0)
+    hsv = np.array([colorsys.rgb_to_hsv(*px) for px in arr])
+    h_mean, s_mean, v_mean = hsv.mean(axis=0)
+
+    features.append({
+        "id": ident,
+        "mean_r": round(r * 255, 1),
+        "mean_g": round(g * 255, 1),
+        "mean_b": round(b * 255, 1),
+        "saturation": round(s_mean, 3),
+        "luminosity": round(v_mean, 3)
+    })
+
+df = pd.DataFrame(features)
+print("\nAperçu des caractéristiques extraites :")
+print(df.head())
