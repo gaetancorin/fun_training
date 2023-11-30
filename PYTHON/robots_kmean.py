@@ -12,7 +12,7 @@ from sklearn.cluster import KMeans
 NUM_IMAGES = 20
 OUTPUT_DIR = "robots"
 SIZE = (256, 256)
-NUM_CLUSTERS = 4
+NUM_CLUSTERS = 8
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
