@@ -5,14 +5,13 @@ from io import BytesIO
 from PIL import Image
 import numpy as np
 import colorsys
-import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 
 NUM_IMAGES = 20
 OUTPUT_DIR = "robots"
 SIZE = (256, 256)
-NUM_CLUSTERS = 8
+NUM_CLUSTERS = 7
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -64,17 +63,23 @@ X = np.array(features)
 kmeans = KMeans(n_clusters=NUM_CLUSTERS, random_state=42)
 labels = kmeans.fit_predict(X)
 
-# Visualisation des robots par cluster
+# Organisation des robots par cluster
 clustered = {i: [] for i in range(NUM_CLUSTERS)}
 for label, img, ident in zip(labels, images, ids):
     clustered[label].append((ident, img))
 
-plt.figure(figsize=(NUM_CLUSTERS * 4, 8))
+# Affichage amélioré
+rows = NUM_CLUSTERS
+cols = max(len(items) for items in clustered.values())
+plt.figure(figsize=(cols * 2, rows * 2.5))
+
 for cluster_idx, items in clustered.items():
     for i, (ident, img) in enumerate(items):
-        plt.subplot(NUM_CLUSTERS, max(len(items),1), cluster_idx * len(items) + i + 1)
+        plt.subplot(rows, cols, cluster_idx * cols + i + 1)
         plt.imshow(img)
         plt.axis('off')
-        plt.title(f"{ident}\nCluster {cluster_idx}")
+        if i == 0:
+            plt.ylabel(f"Cluster {cluster_idx}", fontsize=12, rotation=0, labelpad=40)
+
 plt.tight_layout()
 plt.show()
