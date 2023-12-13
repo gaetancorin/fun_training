@@ -3,8 +3,8 @@ from io import BytesIO
 from PIL import Image, ImageTk
 import tkinter as tk
 
-frames = []  # frames du GIF actuel
-anim_id = None  # identifiant de l'after pour annuler l'animation
+frames = []
+anim_id = None
 
 def animate(counter=0):
     global anim_id
