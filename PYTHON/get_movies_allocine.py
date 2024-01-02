@@ -32,7 +32,7 @@ for card in soup.find_all("div", class_="card entity-card entity-card-list cf"):
             "release_date": date
         })
 
-with open("films_a_l_affiche.json", "w", encoding="utf-8") as f:
+with open("films_recent.json", "w", encoding="utf-8") as f:
     json.dump(films, f, ensure_ascii=False, indent=4)
 
-print(f"{len(films)} films récupérés et sauvegardés dans 'films_a_l_affiche.json'")
+print(f"{len(films)} films récupérés et sauvegardés dans 'films_recent.json'")
