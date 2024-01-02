@@ -1,0 +1,30 @@
+---- INSTALLER PYENV ----
+sur powershell en administrateur
+autoriser les scripts utilisteur en ecrivant dans le terminal:
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+ouvrir un terminal classique
+installer pyenv:
+pip install pyenv-win --target $env:USERPROFILE\.pyenv
+
+sur windows, aller dans "modifier les variables d'environnement systèmes"
+cliquer sur "variables d'environnement"
+dans "variables utilisateur pour NOMUTILISATEUR", double cliquer sur "Path"
+ajouter les 2 nouvelles variables (elles doivent être tout en haut de la liste)
+C:\Users\NOMUTILISATEUR\.pyenv\pyenv-win\shims
+C:\Users\NOMUTILISATEUR\.pyenv\pyenv-win\bin
+
+relancer le terminal, ecrire:
+pyenv --version
+si l'installation est bien faite, cela devrais dire que les variables d'environnements
+PYENV, PYENV_ROOT et PYENV_HOME ne sont pas installé
+
+sur windows, aller dans "modifier les variables d'environnement systèmes"
+cliquer sur "variables d'environnement"
+dans "variables utilisateur pour NOMUTILISATEUR" ajouter 3 variables 
+PYENV		C:\Users\NOMUTILISATEUR\.pyenv\pyenv-win
+PYENV_ROOT	C:\Users\NOMUTILISATEUR\.pyenv\pyenv-win
+PYENV_HOME	C:\Users\NOMUTILISATEUR\.pyenv\pyenv-win
+
+relancer le terminal. Pour chaque version de python installé, copier ces versions dans pyenv avec :
+Copy-Item -Recurse "C:\Python311" "$env:USERPROFILE\.pyenv\pyenv-win\versions\3.11"
