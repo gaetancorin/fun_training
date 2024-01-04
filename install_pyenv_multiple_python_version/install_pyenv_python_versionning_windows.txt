@@ -1,3 +1,15 @@
+---- INSTALLER UNE VERSION DE PYTHON ---
+aller sur google et ecrire python3.11 ou python3.12
+selectionner les liens python.org ayant la plus haute version (3.11.9 et pas 3.11.0)
+le lien doit avoir un fichier "Windows installer (64-bits)", telecharger le fichier d'installation
+
+lors du double clique d'installation du fichier:
+NE PAS cocher "add python.exe to PATH"
+faire "customize installation"
+optional features -> laisser tout cocher
+Advanced options -> changer l'url a C:\python311
+Advanced options -> laisser cocher "Associate files…", "Create shortcuts…", "Add python to environnement variables"
+
 ---- INSTALLER PYENV ----
 sur powershell en administrateur
 autoriser les scripts utilisteur en ecrivant dans le terminal:
