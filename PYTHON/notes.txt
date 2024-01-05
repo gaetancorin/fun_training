@@ -1,0 +1,41 @@
+add *
+
+$DATE = "2022-11-28T12:00:00"; $env:GIT_COMMITTER_DATE = $DATE; git commit -m "Add todolist" --date=$DATE; Remove-Item Env:\GIT_COMMITTER_DATE; git push
+
+---------------------------------
+
+Voici les projets déjà réalisés:
+PHP/
+	survey/
+	calculatrice.php
+	habit_tracker.php
+	loto.php
+	mini_chat.php
+	mini_login.php
+	money_swap.php
+	my_bank.php
+	password_generator.php
+	pierre_papier_ciseau.php
+	quizz.php
+	todolist.php
+
+PYTHON/
+	ads_generator_and_categories.py
+	air_quality_scrapper.py
+	articles_scrapper.py
+	baconipsum_words_cloud.PY
+	blackjack.py
+	btc_graph.py
+	budget_tracker.py
+	electricity_consumption_scrapper.py
+	fruityvice_fruits_analysis.py
+	get_movies_allocine.py
+	hash_passlib_tester.py
+	mastermind.py
+	meteo_scrapper.py
+	picsum_color_analyser.py
+	quote_generator.py
+	word_frequency_random_wiki.py
+	word_frequency_10_random_wiki.py
+
+des idées d'autres projets a faire en python ?
