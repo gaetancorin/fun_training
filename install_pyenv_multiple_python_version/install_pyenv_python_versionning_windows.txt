@@ -40,3 +40,37 @@ PYENV_HOME	C:\Users\NOMUTILISATEUR\.pyenv\pyenv-win
 
 relancer le terminal. Pour chaque version de python installé, copier ces versions dans pyenv avec :
 Copy-Item -Recurse "C:\Python311" "$env:USERPROFILE\.pyenv\pyenv-win\versions\3.11"
+
+voir les versions python installé sur pyenv:
+pyenv versions
+
+supprimer toutes les variables d'environnement qui pointe vers un python spécifique
+sur windows, aller dans "modifier les variables d'environnement systèmes"
+cliquer sur "variables d'environnement"
+supprimer les lignes suivantes dans toutes les variables d'environnements (notmalement dans le path utilisateurs et le path de variable systèmes)
+C:\Python311\Scripts\
+C:\Python311\
+
+relancer le terminal, puis ecrire:
+pyenv rehash
+python --version
+pyenv global 3.12
+python --version
+pyenv global 3.11
+python --version
+
+Installation terminé
+voir version = pyenv versions
+changer version= pyenv global 3.11
+
+------------------
+Supprimer proprement une version Python
+Aller dans paramètres -> appplication -> application installés
+écrire python3.11 dans la barre de recherche et cliquer sur désinstaller
+puis supprimer manuellement le dossier "C:/python3.11" qui est désormais presque vide
+
+-----------------
+Une betise sur l'installation/la desinstallation ?
+telecharger la version python sur python.org, et lancer l'exécutable pour réparer
+puis désinstaller proprement si nécessaire comme expliqué
+
