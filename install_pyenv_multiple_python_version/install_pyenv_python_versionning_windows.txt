@@ -1,3 +1,7 @@
+Attention !
+NOMUTILISATEUR doit être remplacé a la main par le vrai nom d'utilisateur
+USERPROFILE est une variable d'environnement et ne doit pas être changé
+
 ---- INSTALLER UNE VERSION DE PYTHON ---
 aller sur google et ecrire python3.11 ou python3.12
 selectionner les liens python.org ayant la plus haute version (3.11.9 et pas 3.11.0)
@@ -74,3 +78,13 @@ Une betise sur l'installation/la desinstallation ?
 telecharger la version python sur python.org, et lancer l'exécutable pour réparer
 puis désinstaller proprement si nécessaire comme expliqué
 
+--------------
+Problème de pip ?
+écrire sur le terminal:
+pip --version
+python -m pip --version
+pip mène vers C:/pythonXX
+python -m pip mène vers pyenv
+Il n'y a malheureusement pas de moyen de réparer ca.
+Il faut donc faire les installation en réalisant:
+python -m pip 
