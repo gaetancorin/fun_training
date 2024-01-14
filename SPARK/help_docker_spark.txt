@@ -1,0 +1,25 @@
+-------------- AIDE DOCKER COMPOSE ---------------
+construire le docker compose:
+docker-compose -p spark_distributed up -d
+
+reconstruire completement le docker compose:
+docker-compose -p spark_distributed up --build -d
+
+redemarrer le docker compose:
+docker-compose -p spark_distributed start
+
+arreter le docker compose:
+docker-compose -p spark_distributed stop
+
+supprimer le docker compose et docker associés:
+docker-compose -p spark_distributed down
+
+recréer le docker compose:
+docker-compose -p spark_distributed down
+docker-compose -p spark_distributed up -d
+
+ajouter des worker:
+docker-compose -p spark_distributed up -d --scale spark-worker-A=3
+
+----------------------------------
+TUTORIEL PREMIER FONCTIONNEMENT
