@@ -11,6 +11,8 @@ services:
     ports:
       - "8082:8080"   # Dashboard Spark
       - "7077:7077"   # Port pour les workers
+    volumes:
+      - ../workspace:/opt/spark/workspace
 
   spark-worker-A-new:
     image: bitnami/spark:latest
@@ -18,8 +20,11 @@ services:
     environment:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark-master-new:7077
+      - HOME=/opt/spark
     depends_on:
       - spark-master-new
+    volumes:
+      - ../workspace:/opt/spark/workspace
 
   spark-worker-B-new:
     image: bitnami/spark:latest
@@ -27,5 +32,8 @@ services:
     environment:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark-master-new:7077
+      - HOME=/opt/spark
     depends_on:
       - spark-master-new
+    volumes:
+      - ../workspace:/opt/spark/workspace
