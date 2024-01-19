@@ -1,0 +1,5 @@
+Download Spark:
+https://spark.apache.org/downloads.html
+
+place folder here:
+C:\spark\spark-4.0.0-bin-hadoop3
