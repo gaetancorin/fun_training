@@ -3,3 +3,11 @@ https://spark.apache.org/downloads.html
 
 place folder here:
 C:\spark\spark-4.0.0-bin-hadoop3
+
+Create env variable on Windows:
+Open Paramètres → Système → Variables d’environnement
+add folder bin of Spark into variable PATH :
+C:\spark\spark-3.5.1-bin-hadoop3\bin
+
+open terminal on write:
+spark-submit --version
