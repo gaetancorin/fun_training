@@ -1,0 +1,13 @@
+Il n'est pas possible de lancer le driver "spark-submit" sur le pc, et que cela communique avec le master/workers,
+car la référence du driver devient le laptop, et les workers n'arrive pas a remonter jusqu'au laptop
+
+Cette ligne bash ne marche donc pas pour lancer pyspark:(les workers crash en boucle et se recrée)
+spark-submit --master spark://localhost:7077 test_spark.py
+
+pour lancer pyspark sur le réseau spark du docker compose, il faut donc que "spark-submit" soit exécuté directement
+dans le master.
+Pour cela, créer un emplacement ivy:
+docker exec -it spark-master-new mkdir -p /opt/spark/workspace/.ivy2
+
+puis lancer le pyspark en forcant d'utiliser l'emplacement ivy:
+docker exec -it spark-master-new spark-submit --conf spark.jars.ivy=/opt/spark/workspace/.ivy2 --master spark://spark-master-new:7077 /opt/spark/workspace/test_spark.py
