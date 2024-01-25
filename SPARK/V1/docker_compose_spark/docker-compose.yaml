@@ -1,6 +1,6 @@
 services:
   spark-master-new:
-    image: bitnami/spark:latest
+    image: bitnamilegacy/spark:latest
     container_name: spark-master-new
     environment:
       - SPARK_MODE=master
@@ -15,7 +15,7 @@ services:
       - ../workspace:/opt/spark/workspace
 
   spark-worker-A-new:
-    image: bitnami/spark:latest
+    image: bitnamilegacy/spark:latest
     container_name: spark-worker-A-new
     environment:
       - SPARK_MODE=worker
@@ -27,7 +27,7 @@ services:
       - ../workspace:/opt/spark/workspace
 
   spark-worker-B-new:
-    image: bitnami/spark:latest
+    image: bitnamilegacy/spark:latest
     container_name: spark-worker-B-new
     environment:
       - SPARK_MODE=worker

@@ -7,3 +7,4 @@ yfinance==0.2.65
 wordcloud
 scikit-learn
 python-dotenv
+pyspark

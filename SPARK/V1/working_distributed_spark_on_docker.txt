@@ -1,7 +1,7 @@
 Il n'est pas possible de lancer le driver "spark-submit" sur le pc, et que cela communique avec le master/workers,
 car la référence du driver devient le laptop, et les workers n'arrive pas a remonter jusqu'au laptop
 
-Cette ligne bash ne marche donc pas pour lancer pyspark:(les workers crash en boucle et se recrée)
+Cette ligne bash ne marche donc pas pour lancer pyspark:
 spark-submit --master spark://localhost:7077 test_spark.py
 
 pour lancer pyspark sur le réseau spark du docker compose, il faut donc que "spark-submit" soit exécuté directement
