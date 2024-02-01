@@ -13,10 +13,9 @@ docker-compose -p spark_cluster stop
 
 supprimer le docker compose et docker associés:
 docker-compose -p spark_cluster down
-
-recréer le docker compose:
-docker-compose -p spark_cluster down
-docker-compose -p spark_cluster up -d
+docker-compose -p spark_cluster down -v
 
 ----------------------------------
 TUTORIEL PREMIER FONCTIONNEMENT
+Inside V2:
+docker exec -it spark-master spark-submit /opt/spark/workspace/test_spark.py
