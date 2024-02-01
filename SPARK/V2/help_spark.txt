@@ -18,4 +18,6 @@ docker-compose -p spark_cluster down -v
 ----------------------------------
 TUTORIEL PREMIER FONCTIONNEMENT
 Inside V2:
-docker exec -it spark-master spark-submit /opt/spark/workspace/test_spark.py
+docker exec -it spark-master mkdir -p /opt/spark/workspace/.ivy2
+
+docker exec -it spark-master spark-submit --conf spark.jars.ivy=/opt/spark/workspace/.ivy2 --master spark://spark-master:7077 /opt/spark/workspace/test_spark.py
