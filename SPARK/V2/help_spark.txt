@@ -17,6 +17,7 @@ docker-compose -p spark_cluster down -v
 
 ----------------------------------
 TUTORIEL PREMIER FONCTIONNEMENT
+(! bitnamilegacy image is going to be delete in the future : https://hub.docker.com/r/bitnamilegacy/spark)
 Inside V2:
 docker exec -it spark-master mkdir -p /opt/spark/workspace/.ivy2
 

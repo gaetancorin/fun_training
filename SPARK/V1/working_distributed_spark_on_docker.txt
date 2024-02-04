@@ -1,3 +1,5 @@
+(! bitnamilegacy image is going to be delete in the future : https://hub.docker.com/r/bitnamilegacy/spark)
+
 Il n'est pas possible de lancer le driver "spark-submit" sur le pc, et que cela communique avec le master/workers,
 car la référence du driver devient le laptop, et les workers n'arrive pas a remonter jusqu'au laptop
 
