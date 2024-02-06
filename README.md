@@ -1,1 +1,1 @@
-# self_training
+Project of self training for improve knowledges
