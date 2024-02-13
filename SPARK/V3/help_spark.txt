@@ -1,0 +1,24 @@
+-------------- AIDE DOCKER COMPOSE ---------------
+construire le docker compose:
+docker-compose -p spark_cluster up -d
+
+forcer a tout rebuild:
+docker-compose -p spark_cluster up --build -d
+
+redemarrer le docker compose:
+docker-compose -p spark_cluster start
+
+arreter le docker compose:
+docker-compose -p spark_cluster stop
+
+supprimer le docker compose et docker associés:
+docker-compose -p spark_cluster down
+docker-compose -p spark_cluster down -v
+
+----------------------------------
+TUTORIEL PREMIER FONCTIONNEMENT
+(! bitnamilegacy image is going to be delete in the future : https://hub.docker.com/r/bitnamilegacy/spark)
+Inside V2:
+docker exec -it spark-master mkdir -p /opt/spark/workspace/.ivy2
+
+docker exec -it spark-master spark-submit --conf spark.jars.ivy=/opt/spark/workspace/.ivy2 --master spark://spark-master:7077 /opt/spark/workspace/test_spark.py
