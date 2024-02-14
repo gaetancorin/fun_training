@@ -17,8 +17,9 @@ docker-compose -p spark_cluster down -v
 
 ----------------------------------
 TUTORIEL PREMIER FONCTIONNEMENT
-(! bitnamilegacy image is going to be delete in the future : https://hub.docker.com/r/bitnamilegacy/spark)
-Inside V2:
-docker exec -it spark-master mkdir -p /opt/spark/workspace/.ivy2
+Lancer le programme:(que master si besoin calcul est faible):
+docker exec -it spark-master bash -c "cd /opt/spark/workspace && /opt/spark/bin/spark-submit test_spark.py"
 
-docker exec -it spark-master spark-submit --conf spark.jars.ivy=/opt/spark/workspace/.ivy2 --master spark://spark-master:7077 /opt/spark/workspace/test_spark.py
+Lancer 1 master + 2 workers, meme si le besoin de calcul est faible:
+docker exec -it spark-master bash -c "cd /opt/spark/workspace && /opt/spark/bin/spark-submit --master spark://spark-master:7077 --deploy-mode client --total-executor-cores 2 test_spark.py"
+
