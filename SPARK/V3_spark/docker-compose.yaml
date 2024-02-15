@@ -2,12 +2,12 @@ services:
   spark-master:
     image: spark:latest
     container_name: spark-master
-    command: ["/bin/bash", "-c", "/opt/spark/sbin/start-master.sh && tail -f /dev/null"]
+    command: ["/bin/bash", "-c", "/opt/spark/sbin/start-master.sh && tail -f /opt/spark/logs/*"]
+    ports:
+      - "8082:8080"
+      - "7077:7077"
     volumes:
       - ./workspace:/opt/spark/workspace
-    ports:
-      - "8082:8080"  # Web UI
-      - "7077:7077"  # Spark master port
     networks:
       - spark_net
 
@@ -16,7 +16,7 @@ services:
     container_name: spark-worker-1
     depends_on:
       - spark-master
-    command: ["/bin/bash", "-c", "sleep 5 && /opt/spark/sbin/start-worker.sh spark://spark-master:7077 && tail -f /dev/null"]
+    command: ["/bin/bash", "-c", "sleep 5 && /opt/spark/sbin/start-worker.sh spark://spark-master:7077 && tail -f /opt/spark/logs/*"]
     volumes:
       - ./workspace:/opt/spark/workspace
     networks:
@@ -27,7 +27,7 @@ services:
     container_name: spark-worker-2
     depends_on:
       - spark-master
-    command: ["/bin/bash", "-c", "sleep 5 && /opt/spark/sbin/start-worker.sh spark://spark-master:7077 && tail -f /dev/null"]
+    command: ["/bin/bash", "-c", "sleep 5 && /opt/spark/sbin/start-worker.sh spark://spark-master:7077 && tail -f /opt/spark/logs/*"]
     volumes:
       - ./workspace:/opt/spark/workspace
     networks:

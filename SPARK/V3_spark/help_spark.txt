@@ -17,7 +17,7 @@ docker-compose -p spark_cluster down -v
 
 ----------------------------------
 TUTORIEL PREMIER FONCTIONNEMENT
-Lancer le programme:(que master si besoin calcul est faible):
+Lancer le programme: (master et worker, ou que master si besoin calcul est faible):
 docker exec -it spark-master bash -c "cd /opt/spark/workspace && /opt/spark/bin/spark-submit test_spark.py"
 
 Lancer 1 master + 2 workers, meme si le besoin de calcul est faible:
