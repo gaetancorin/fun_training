@@ -1,0 +1,25 @@
+-------------- AIDE DOCKER COMPOSE ---------------
+construire le docker compose:
+docker-compose -p spark_cluster up -d
+
+forcer a tout rebuild:
+docker-compose -p spark_cluster up --build -d
+
+redemarrer le docker compose:
+docker-compose -p spark_cluster start
+
+arreter le docker compose:
+docker-compose -p spark_cluster stop
+
+supprimer le docker compose et docker associés:
+docker-compose -p spark_cluster down
+docker-compose -p spark_cluster down -v
+
+----------------------------------
+TUTORIEL PREMIER FONCTIONNEMENT
+Lancer le programme: (master et worker, ou que master si besoin calcul est faible):
+docker exec -it spark-master bash -c "cd /opt/spark/workspace && /opt/spark/bin/spark-submit test_spark.py"
+
+Lancer 1 master + 2 workers, meme si le besoin de calcul est faible:
+docker exec -it spark-master bash -c "cd /opt/spark/workspace && /opt/spark/bin/spark-submit --master spark://spark-master:7077 --deploy-mode client --total-executor-cores 2 test_spark.py"
+
