@@ -12,17 +12,16 @@ with DAG(
 
     @task()
     def maybe_fail():
-
         n = random.choice([1, 2])
+        print(f"N = {n}")
         if n == 1:
-            print("✅ Cette exécution réussit.")
+            print("Cette exécution réussit.")
         else:
-            raise Exception("Échec contrôlé (1 fois sur 2)")
+            raise Exception("Échec volontaire (1 fois sur 2)")
 
     @task()
     def success_message():
         print("Le DAG s’est exécuté avec succès cette fois-ci ! 🎉")
 
-    # Définition du flow
     result = maybe_fail()
     result >> success_message()
