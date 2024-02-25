@@ -1,0 +1,14 @@
+services:
+  mailhog:
+    image: mailhog/mailhog
+    container_name: mailhog
+    ports:
+      - "8025:8025"  # Web UI
+      - "1025:1025"  # SMTP
+    networks:
+      - mailhog_net
+
+networks:
+  mailhog_net:
+    #external: true
+    #name: network_of_your_docker_compose_you_want_to_link_mailhog
