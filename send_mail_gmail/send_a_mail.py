@@ -3,15 +3,15 @@ from dotenv import load_dotenv
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import os
-receiver = os.getenv("RECEIVER")
 
+# Load .env file
 load_dotenv()
-smtp_user = os.getenv("SMTP_USER")
-smtp_pass = os.getenv("SMTP_PASS")
+smtp_user = os.getenv("SMTP_USER") # sender email
+smtp_pass = os.getenv("SMTP_PASS") # sender password application
 
-smtp_server = os.getenv("SMTP_SERVER")
-smtp_port = int(os.getenv("SMTP_PORT"))
-
+smtp_server = os.getenv("SMTP_SERVER") # receiver SMTP server
+smtp_port = int(os.getenv("SMTP_PORT")) # receiver SMTP port (587=TLS, 465=SSL, 25=not secure)
+receiver = os.getenv("RECEIVER") # receiver email
 
 def send_email():
     sender = smtp_user
@@ -41,6 +41,8 @@ def send_email():
     try:
         # Connexion au serveur SMTP
         with smtplib.SMTP(smtp_server, smtp_port) as server:
+            if smtp_port == 587:
+                server.starttls()  # securise TLS
             server.login(smtp_user, smtp_pass)
             server.sendmail(sender, receiver, msg.as_string())
         print("✅ Email envoyé avec succès à", receiver)
