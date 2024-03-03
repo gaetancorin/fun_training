@@ -1,0 +1,28 @@
+-------------- AIDE DOCKER COMPOSE ---------------
+construire le docker compose:
+docker-compose -p mailhog up -d
+
+forcer a tout rebuild:
+docker-compose -p mailhog up --build -d
+
+redemarrer le docker compose:
+docker-compose -p mailhog start
+
+arreter le docker compose:
+docker-compose -p mailhog stop
+
+supprimer le docker compose et docker associés:
+docker-compose -p mailhog down
+
+recréer le docker compose:
+docker-compose -p mailhog down
+docker-compose -p mailhog up -d
+
+----------------------------------
+TUTORIEL PREMIER FONCTIONNEMENT
+
+Pour se connecter, aller sur:
+http://localhost:8025/
+
+Mailhog est un receveur d'email.
+Il permet de tester des outils d'envoi d'email sans spammer une réel boite email.

@@ -16,13 +16,11 @@ receiver = os.getenv("RECEIVER") # receiver email
 def send_email():
     sender = smtp_user
 
-    # Création du message
     msg = MIMEMultipart("alternative")
     msg["From"] = sender
     msg["To"] = receiver
     msg["Subject"] = "✅ Test SMTP Python"
 
-    # Contenu du mail
     text = "Bonjour Gaetan,\n\nCeci est un test SMTP envoyé en Python."
     html = """\
     <html>
@@ -34,12 +32,10 @@ def send_email():
     </html>
     """
 
-    # Attache texte + html
     msg.attach(MIMEText(text, "plain"))
     msg.attach(MIMEText(html, "html"))
 
     try:
-        # Connexion au serveur SMTP
         with smtplib.SMTP(smtp_server, smtp_port) as server:
             if smtp_port == 587:
                 server.starttls()  # securise TLS
