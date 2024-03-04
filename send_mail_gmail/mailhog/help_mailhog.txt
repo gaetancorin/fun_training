@@ -26,3 +26,4 @@ http://localhost:8025/
 
 Mailhog est un receveur d'email.
 Il permet de tester des outils d'envoi d'email sans spammer une réel boite email.
+La boite mail qui envois les emails doit en revanche être une vrai boite email (gmail, outlook, ...)
