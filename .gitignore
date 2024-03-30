@@ -23,6 +23,7 @@ PYTHON/faces/
 PYTHON/picsum_images_square/
 
 AIRFLOW/data
+AIRFLOW/airflow_tmp
 
 help.txt
 no_duplicate.txt
