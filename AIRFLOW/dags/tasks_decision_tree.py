@@ -28,6 +28,28 @@ with DAG(
             print("Need Branch C : (71–100)")
             return "branch_c"
 
+    @task()
+    def branch_a():
+        print("Branch A working")
+
+    @task()
+    def branch_b():
+        print("Branch B working")
+
+    @task()
+    def branch_c():
+        print("Branch C working")
+
+    @task()
+    def end():
+        print("End task")
 
     n = generate_number()
     next_task = decide_branch(n)
+    a = branch_a()
+    b = branch_b()
+    c = branch_c()
+    end_task = end()
+
+    next_task >> [a, b, c]
+    [a, b, c] >> end_task
