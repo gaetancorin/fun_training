@@ -4,6 +4,8 @@
 .env
 __pycache__/
 .ipynb_checkpoints/
+config/
+logs/
 
 PHP/taches.json
 PHP/messages_chat.json
