@@ -7,15 +7,17 @@ import numpy as np
 
 # --- fonctions des tâches ---
 def creer_csv():
-    # Création d'un CSV avec 10 nombres aléatoires
+    # Create CSV with 10 random numbers
     df = pd.DataFrame({
         'nombre': np.random.randint(1, 100, 10)
     })
+    # write one airflow-airflow-worker-1 container into /tmp/input.csv
     df.to_csv('/tmp/input.csv', index=False)
     print("CSV créé : /tmp/input.csv")
 
 
 def traiter_csv():
+    # read one airflow-airflow-worker-1 container into /tmp/input.csv
     df = pd.read_csv('/tmp/input.csv')
     somme = df['nombre'].sum()
     moyenne = df['nombre'].mean()
@@ -33,7 +35,7 @@ default_args = {
 
 # --- définition du DAG ---
 with DAG(
-        dag_id='dag_csv_processing',
+        dag_id='create_csv',
         description='Exemple DAG Airflow 3 avec traitement CSV',
         default_args=default_args,
         start_date=datetime(2024, 1, 1),
