@@ -48,12 +48,8 @@ default_args = {
 # --- définition du DAG ---
 with DAG(
     dag_id='create_viz_to_given_csv',
-    description='Génère CSV, calcule stats et crée un graphique pour plusieurs produits',
     default_args=default_args,
-    start_date=datetime(2024, 1, 1),
-    schedule='@daily',
     catchup=False,
-    tags=['airflow3', 'csv', 'graph'],
 ) as dag:
 
     tache_creer_csv = PythonOperator(
