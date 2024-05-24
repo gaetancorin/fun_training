@@ -1,71 +1,67 @@
+from airflow.decorators import dag, task
 from datetime import datetime, timedelta
-from airflow import DAG
-from airflow.operators.python import PythonOperator
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-DATA_DIR = '/opt/airflow/data'  # volume partagé avec l'hôte
+DATA_DIR = '/opt/airflow/data'
 os.makedirs(DATA_DIR, exist_ok=True)
 
-# --- fonctions Python ---
-def creer_csv_produits():
-    produits = ['Pommes', 'Bananes', 'Cerises']
-    data = {produit: np.random.randint(10, 100, 10) for produit in produits}
-    df = pd.DataFrame(data)
-    df.to_csv(f'{DATA_DIR}/produits_input.csv', index=False)
-    print(f"CSV produits créé : {DATA_DIR}/produits_input.csv")
-
-def traiter_csv_produits():
-    df = pd.read_csv(f'{DATA_DIR}/produits_input.csv')
-    df_result = pd.DataFrame({
-        'Produit': df.columns,
-        'Total': df.sum(),
-        'Moyenne': df.mean(),
-        'Max': df.max()
-    })
-    df_result.to_csv(f'{DATA_DIR}/produits_result.csv', index=False)
-    print(f"CSV résultat produit : {DATA_DIR}/produits_result.csv")
-
-def generer_graphique():
-    df_result = pd.read_csv(f'{DATA_DIR}/produits_result.csv')
-    plt.figure(figsize=(6,4))
-    plt.bar(df_result['Produit'], df_result['Total'], color='skyblue')
-    plt.title('Total par produit')
-    plt.ylabel('Total')
-    plt.savefig(f'{DATA_DIR}/produits_graph.png')
-    plt.close()
-    print(f"Graphique généré : {DATA_DIR}/produits_graph.png")
-
-# --- arguments DAG ---
 default_args = {
     'owner': 'gaetan',
     'retries': 1,
     'retry_delay': timedelta(minutes=1),
 }
 
-# --- définition du DAG ---
-with DAG(
+@dag(
     dag_id='create_viz_to_given_csv',
     default_args=default_args,
+    start_date=datetime(2024, 1, 1),
+    schedule=None,
     catchup=False,
-) as dag:
+)
+def create_viz_to_given_csv():
+    """DAG using the modern Airflow 3 TaskFlow API"""
 
-    tache_creer_csv = PythonOperator(
-        task_id='creer_csv_produits',
-        python_callable=creer_csv_produits,
-    )
+    @task
+    def create_csv():
+        produits = ['Pommes', 'Bananes', 'Cerises']
+        data = {p: np.random.randint(10, 100, 10) for p in produits}
+        df = pd.DataFrame(data)
+        path = f"{DATA_DIR}/produits_input.csv"
+        df.to_csv(path, index=False)
+        print(f"✅ CSV created: {path}")
+        return path
 
-    tache_traiter_csv = PythonOperator(
-        task_id='traiter_csv_produits',
-        python_callable=traiter_csv_produits,
-    )
+    @task
+    def process_csv(path: str):
+        df = pd.read_csv(path)
+        result = pd.DataFrame({
+            'Produit': df.columns,
+            'Total': df.sum(),
+            'Moyenne': df.mean(),
+            'Max': df.max(),
+        })
+        out_path = f"{DATA_DIR}/produits_result.csv"
+        result.to_csv(out_path, index=False)
+        print(f"✅ Processed CSV: {out_path}")
+        return out_path
 
-    tache_graphique = PythonOperator(
-        task_id='generer_graphique',
-        python_callable=generer_graphique,
-    )
+    @task
+    def plot_graph(result_path: str):
+        df = pd.read_csv(result_path)
+        plt.bar(df['Produit'], df['Total'], color='skyblue')
+        plt.title('Total par produit')
+        plt.ylabel('Total')
+        graph_path = f"{DATA_DIR}/produits_graph.png"
+        plt.savefig(graph_path)
+        plt.close()
+        print(f"✅ Graph saved: {graph_path}")
 
-    # --- ordonnancement ---
-    tache_creer_csv >> tache_traiter_csv >> tache_graphique
+    # --- Workflow ---
+    csv_path = create_csv()
+    result_path = process_csv(csv_path)
+    plot_graph(result_path)
+
+create_viz_to_given_csv()
