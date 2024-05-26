@@ -8,17 +8,9 @@ import os
 DATA_DIR = '/opt/airflow/data'
 os.makedirs(DATA_DIR, exist_ok=True)
 
-default_args = {
-    'owner': 'gaetan',
-    'retries': 1,
-    'retry_delay': timedelta(minutes=1),
-}
 
 @dag(
     dag_id='create_viz_to_given_csv',
-    default_args=default_args,
-    start_date=datetime(2024, 1, 1),
-    schedule=None,
     catchup=False,
 )
 def create_viz_to_given_csv():
