@@ -28,5 +28,24 @@ with DAG(
         print(f"{len(fruits)} fruits récupérés.")
         return raw_path
 
+    @task()
+    def compute_stats(raw_path: str):
+        """Calcule les tops 10 et sauvegarde les résultats"""
+        with open(raw_path) as f:
+            fruits = json.load(f)
+
+        top_calories = sorted(fruits, key=lambda x: x['nutritions']['calories'], reverse=True)[:10]
+        top_protein = sorted(fruits, key=lambda x: x['nutritions']['protein'], reverse=True)[:10]
+
+        stats = {"top_calories": top_calories, "top_protein": top_protein}
+        stats_path = os.path.join(DATA_DIR, "fruits_stats.json")
+
+        with open(stats_path, "w") as f:
+            json.dump(stats, f, indent=2)
+
+        print("Top 10 enregistrés.")
+        return stats_path
+
 
     raw = fetch_data()
+    stats = compute_stats(raw)
