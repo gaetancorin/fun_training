@@ -2,6 +2,7 @@ from airflow import DAG
 from airflow.decorators import task
 from datetime import datetime
 import requests
+import matplotlib.pyplot as plt
 import os
 import json
 
@@ -46,6 +47,37 @@ with DAG(
         print("Top 10 enregistrés.")
         return stats_path
 
+    @task()
+    def plot_graphs(stats_path: str):
+        """Génère les graphiques à partir des tops 10"""
+        with open(stats_path) as f:
+            data = json.load(f)
 
+        # --- Calories ---
+        names_cal = [f['name'] for f in data['top_calories']]
+        calories = [f['nutritions']['calories'] for f in data['top_calories']]
+
+        # --- Protéines ---
+        names_prot = [f['name'] for f in data['top_protein']]
+        proteins = [f['nutritions']['protein'] for f in data['top_protein']]
+
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 10))
+
+        ax1.bar(names_cal, calories, color='tomato')
+        ax1.set_title("Top 10 fruits les plus caloriques")
+        ax1.set_xticklabels(names_cal, rotation=45, ha='right')
+
+        ax2.bar(names_prot, proteins, color='lightgreen')
+        ax2.set_title("Top 10 fruits les plus riches en protéines")
+        ax2.set_xticklabels(names_prot, rotation=45, ha='right')
+
+        plt.tight_layout()
+        img_path = os.path.join(DATA_DIR, "fruits_analysis.png")
+        plt.savefig(img_path)
+        print(f"Graphique sauvegardé : {img_path}")
+        return img_path
+
+    # --- Orchestration des tâches ---
     raw = fetch_data()
     stats = compute_stats(raw)
+    plot_graphs(stats)
