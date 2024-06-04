@@ -26,5 +26,26 @@ with DAG(
         print(f"✅ Password hashed and stored in {hash_path}")
         return hash_path
 
+    @task()
+    def verify_password(hash_path: str):
+        """Verify the stored password"""
+        with open(hash_path) as f:
+            data = json.load(f)
+        hashed = data["hash"]
+        password = data["password"]
+
+        ok = bcrypt.verify(password, hashed)
+        print("✅ Password correct" if ok else "❌ Password incorrect")
+
+        result_path = os.path.join(DATA_DIR, "password_verify.json")
+        with open(result_path, "w") as f:
+            json.dump({"verified": ok}, f)
+        return result_path
+
+    @task()
+    def print_result(result_path: str):
+        print(f"✅ Verification results saved to {result_path}")
 
     hash_path = store_password()
+    result_path = verify_password(hash_path)
+    print_result(result_path)
