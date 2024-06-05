@@ -1,6 +1,7 @@
 -------------- AIDE DOCKER COMPOSE ---------------
 construire le docker compose:
 docker-compose -p airflow up -d
+docker-compose -p airflow up --build -d
 
 redemarrer le docker compose:
 docker-compose -p airflow start

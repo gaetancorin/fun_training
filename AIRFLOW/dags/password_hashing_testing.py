@@ -17,7 +17,6 @@ with DAG(
 
     @task()
     def store_password():
-        """Hash a password (simulate input)"""
         password = "MySecretPassword123"  # simulate input
         hashed = bcrypt.hash(password)
         hash_path = os.path.join(DATA_DIR, "password_hash.json")
@@ -28,14 +27,13 @@ with DAG(
 
     @task()
     def verify_password(hash_path: str):
-        """Verify the stored password"""
         with open(hash_path) as f:
             data = json.load(f)
         hashed = data["hash"]
         password = data["password"]
 
         ok = bcrypt.verify(password, hashed)
-        print("✅ Password correct" if ok else "❌ Password incorrect")
+        print("Password correct" if ok else "Password incorrect")
 
         result_path = os.path.join(DATA_DIR, "password_verify.json")
         with open(result_path, "w") as f:
@@ -44,7 +42,7 @@ with DAG(
 
     @task()
     def print_result(result_path: str):
-        print(f"✅ Verification results saved to {result_path}")
+        print(f"Verification results saved to {result_path}")
 
     hash_path = store_password()
     result_path = verify_password(hash_path)
