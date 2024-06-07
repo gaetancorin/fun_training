@@ -60,6 +60,26 @@ with DAG(
         print("✅ Comptage des mots terminé.")
         return counts_path
 
+    @task()
+    def plot_word_counts(counts_path: str):
+        with open(counts_path) as f:
+            most_common = json.load(f)
+
+        labels, values = zip(*most_common)
+
+        plt.figure(figsize=(12, 6))
+        plt.bar(labels, values, color='skyblue')
+        plt.xticks(rotation=45, ha='right')
+        plt.title(f"Top 50 mots les plus fréquents sur {NUM_PAGES} pages Wikipedia aléatoires")
+        plt.ylabel("Occurrences")
+        plt.tight_layout()
+
+        img_path = os.path.join(DATA_DIR, "wikipedia_word_frequency.png")
+        plt.savefig(img_path)
+        plt.close()
+        print(f"✅ Graphique sauvegardé : {img_path}")
+        return img_path
 
     words_path = scrape_pages()
     counts_path = compute_word_counts(words_path)
+    plot_word_counts(counts_path)
