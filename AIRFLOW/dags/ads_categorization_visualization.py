@@ -45,5 +45,30 @@ with DAG(
         return ads
 
 
-    ads = fetch_ads()
+    @task()
+    def categorize_ads(ads):
+        categorized = []
 
+        def categorize(ad_text):
+            ad_lower = ad_text.lower()
+            for cat, keywords in CATEGORIES.items():
+                for kw in keywords:
+                    if kw in ad_lower:
+                        return cat
+            return "Autre"
+
+        for ad in ads:
+            category = categorize(ad)
+            categorized.append({"ad": ad, "category": category})
+
+        print(f"{len(categorized)} pubs catégorisées.")
+        print("Ads data categories : -----")
+        for i, ad in enumerate(categorized, 1):
+            print(f"{i}. [{ad['category']}] {ad['ad']}")
+        return categorized
+
+
+
+
+    ads = fetch_ads()
+    categorized = categorize_ads(ads)
