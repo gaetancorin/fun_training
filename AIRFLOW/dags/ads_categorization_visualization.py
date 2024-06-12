@@ -5,6 +5,8 @@ import requests
 import os
 import matplotlib.pyplot as plt
 
+DATA_DIR = "/opt/airflow/data"
+os.makedirs(DATA_DIR, exist_ok=True)
 
 N = 10
 CATEGORIES = {
@@ -68,7 +70,30 @@ with DAG(
         return categorized
 
 
+    @task()
+    def plot_categories(categorized):
+        os.makedirs(DATA_DIR, exist_ok=True)
 
+        counts = {}
+        for ad in categorized:
+            counts[ad["category"]] = counts.get(ad["category"], 0) + 1
+
+        categories = list(counts.keys())
+        values = list(counts.values())
+
+        plt.figure(figsize=(8, 5))
+        plt.bar(categories, values, color="skyblue")
+        plt.ylabel("Nombre de pubs")
+        plt.title(f"Répartition des catégories sur {len(categorized)} pubs")
+        plt.xticks(rotation=45, ha='right')
+        plt.tight_layout()
+
+        file_path = os.path.join(DATA_DIR, "ads_categories.png")
+        plt.savefig(file_path)
+        plt.close()
+
+        print(f"Graphique sauvegardé : {file_path}")
 
     ads = fetch_ads()
     categorized = categorize_ads(ads)
+    plot_categories(categorized)
