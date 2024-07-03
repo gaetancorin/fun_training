@@ -4,7 +4,7 @@ from airflow.utils.task_group import TaskGroup
 from datetime import datetime
 
 with DAG(
-    dag_id="example_taskgroup_english",
+    dag_id="testing_task_group",
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
@@ -29,6 +29,7 @@ with DAG(
             print("Transforming data")
 
         @task()
+        def load():
             print("Loading data")
 
         # Define the order of tasks inside the TaskGroup
