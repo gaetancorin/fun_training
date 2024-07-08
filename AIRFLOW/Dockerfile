@@ -12,4 +12,4 @@ USER airflow
 
 # --- Install Python libraries ---
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir pandas numpy matplotlib passlib
+    pip install --no-cache-dir pandas numpy matplotlib passlib apache-airflow[virtualenv] virtualenv
