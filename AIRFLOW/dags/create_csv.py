@@ -11,18 +11,18 @@ def creer_csv():
     df = pd.DataFrame({
         'nombre': np.random.randint(1, 100, 10)
     })
-    # write one airflow-airflow-worker-1 container into /tmp/input.csv
-    df.to_csv('/tmp/input.csv', index=False)
-    print("CSV créé : /tmp/input.csv")
+    # write one airflow-airflow-worker-1 container into /opt/airflow/data/input.csv
+    df.to_csv('/opt/airflow/data/input.csv', index=False)
+    print("CSV créé : /opt/airflow/data/input.csv")
 
 
 def traiter_csv():
-    # read one airflow-airflow-worker-1 container into /tmp/input.csv
-    df = pd.read_csv('/tmp/input.csv')
+    # read one airflow-airflow-worker-1 container into /opt/airflow/data/input.csv
+    df = pd.read_csv('/opt/airflow/data/input.csv')
     somme = df['nombre'].sum()
     moyenne = df['nombre'].mean()
     df_result = pd.DataFrame({'somme': [somme], 'moyenne': [moyenne]})
-    df_result.to_csv('/tmp/result.csv', index=False)
+    df_result.to_csv('/opt/airflow/data/result.csv', index=False)
     print(f"Résultat calculé : somme={somme}, moyenne={moyenne}")
 
 
