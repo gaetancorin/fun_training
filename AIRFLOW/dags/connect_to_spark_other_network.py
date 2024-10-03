@@ -11,26 +11,39 @@ with DAG(
 ) as dag:
     @task.docker(
         docker_url="tcp://host.docker.internal:2375",
-        image="python:3.12-slim",
+        image="quay.io/jupyter/pyspark-notebook",
         auto_remove='force',  # Remove container after execution
         network_mode="spark_cluster_spark_net",  # <-- where spark is
-        mounts=[Mount(source="/tmp", target="/tmp", type="bind")],  # Create space into host for creating container
+        # mounts=[Mount(source="/tmp", target="/tmp", type="bind")],  # Create space into host for creating container
         environment={"EXAMPLE": "Hello Docker"},  # Environment variables
         mount_tmp_dir=False,
         do_xcom_push=False,
     )
-    def docker_task():
-        import socket
+    def spark_task():
+        # Installer PySpark dans le container
+        # import subprocess
+        # subprocess.check_call(["pip", "install", "pyspark==3.5.1"])
 
-        spark_host = "spark-master"  # remplace par le hostname de ton master Spark
-        spark_port = 7077
+        from pyspark.sql import SparkSession
 
-        print(f"Trying to connect to Spark at {spark_host}:{spark_port}...")
-        try:
-            sock = socket.create_connection((spark_host, spark_port), timeout=5)
-            print("Spark reachable!")
-            sock.close()
-        except Exception as e:
-            print(f"Cannot reach Spark: {e}")
+        spark = SparkSession.builder \
+            .master("spark://spark-master:7077") \
+            .appName("AirflowDockerSparkTest") \
+            .getOrCreate()
 
-    docker_task()
+        print("Spark session started!")
+
+        # Exemple simple : création DataFrame et comptage
+        df = spark.createDataFrame([(1, "Alice"), (2, "Bob"), (3, "Charlie")], ["id", "name"])
+        print("DataFrame content:")
+        df.show()
+
+        count = df.count()
+        print(f"Number of rows: {count}")
+
+        spark.stop()
+        print("Spark session stopped.")
+
+        return df
+
+    spark_task()
