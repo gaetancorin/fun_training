@@ -18,12 +18,9 @@ with DAG(
         environment={"EXAMPLE": "Hello Docker"},  # Environment variables
         mount_tmp_dir=False,
         do_xcom_push=False,
+        tmp_dir="/home/jovyan", #<- because of notebook image
     )
     def spark_task():
-        # Installer PySpark dans le container
-        # import subprocess
-        # subprocess.check_call(["pip", "install", "pyspark==3.5.1"])
-
         from pyspark.sql import SparkSession
 
         spark = SparkSession.builder \
@@ -33,7 +30,6 @@ with DAG(
 
         print("Spark session started!")
 
-        # Exemple simple : création DataFrame et comptage
         df = spark.createDataFrame([(1, "Alice"), (2, "Bob"), (3, "Charlie")], ["id", "name"])
         print("DataFrame content:")
         df.show()
