@@ -4,7 +4,7 @@ from datetime import datetime
 import requests
 
 with DAG(
-    dag_id="check_github_status",
+    dag_id="verify_my_github",
     start_date=datetime(2025, 1, 1),
     schedule=None,
     catchup=False,
