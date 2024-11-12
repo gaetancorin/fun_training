@@ -2,6 +2,7 @@ from airflow import DAG
 from airflow.decorators import task
 from datetime import datetime
 import requests
+from collections import Counter
 
 N = 10
 
@@ -39,10 +40,22 @@ with DAG(
                 print(f"Pub {i+1} [{category}] : {ad_message}")
                 return {"ad": ad_message, "category": category}
             else:
-                print(f"Erreur requête {i+1} : {response.status_code}")
                 return {"ad": None, "category": None}
         except Exception as e:
             print(f"Erreur requête {i+1} :", e)
             return {"ad": None, "category": None}
 
-    ads_tasks = [fetch_ad.override(task_id=f"fetch_ad_{i+1}")(i) for i in range(N)]
+    @task()
+    def compute_stats(results):
+        # results est une liste de dict {"ad": ..., "category": ...}
+        categories_list = [r["category"] for r in results if r["category"] is not None]
+        counts = Counter(categories_list)
+        total = sum(counts.values())
+        print("Statistiques des pubs :")
+        for cat, cnt in counts.items():
+            pct = (cnt / total * 100) if total > 0 else 0
+            print(f"- {cat} : {cnt} pubs ({pct:.1f}%)")
+        return counts
+
+    ads = fetch_ad.expand(i=list(range(N)))
+    compute_stats(ads)
