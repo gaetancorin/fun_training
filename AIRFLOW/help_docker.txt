@@ -11,6 +11,7 @@ docker-compose -p airflow stop
 
 supprimer le docker compose et docker associés:
 docker-compose -p airflow down
+docker-compose -p airflow down -v
 
 recréer le docker compose:
 docker-compose -p airflow down
