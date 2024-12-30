@@ -1,12 +1,14 @@
-Project of self training for improve knowledges.
+# Self-Training Project
 
-Here is training for:
-- PHP
-- Python
-- Pyspark
-- Spark
-- Airflow
+This project is dedicated to self-training and improving skills in various technologies.
 
-There is also little projets and notes:
-- A auto sender of email
-- How to install pyenv and use it
+## Training Focus
+- PHP  
+- Python  
+- PySpark  
+- Apache Spark  
+- Airflow  
+
+## Mini Projects & Notes
+- Automatic email sender  
+- Guide on installing and using **pyenv**  
